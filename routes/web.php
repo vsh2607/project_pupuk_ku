@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MasterFarmerController;
+use App\Http\Controllers\MasterPlantController;
 
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate']);
@@ -25,5 +26,16 @@ Route::group(['prefix' => '/master-data', 'middleware' => ['auth']], function ()
         Route::post('{id}/edit', [MasterFarmerController::class, 'updateData']);
         Route::get('/add', [MasterFarmerController::class, 'addForm']);
         Route::post('/add', [MasterFarmerController::class, 'addData']);
+    });
+
+
+    Route::prefix('/master-plant')->group(function () {
+        Route::get('/', [MasterPlantController::class, 'index']);
+        Route::get('/list-data', [MasterPlantController::class, 'listData']);
+        Route::get('{id}/info', [MasterPlantController::class, 'viewForm']);
+        Route::get('{id}/edit', [MasterPlantController::class, 'editForm']);
+        Route::post('{id}/edit', [MasterPlantController::class, 'updateData']);
+        Route::get('/add', [MasterPlantController::class, 'addForm']);
+        Route::post('/add', [MasterPlantController::class, 'addData']);
     });
 });

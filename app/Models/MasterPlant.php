@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MasterPlant extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $fillable = ['name'];
 }

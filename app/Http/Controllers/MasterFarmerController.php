@@ -104,18 +104,7 @@ class MasterFarmerController extends Controller
         DB::beginTransaction();
         try {
             $data = MasterFarmer::find($id);
-            if (!$data) {
-                MasterFarmer::updateOrCreate([
-                    'id' => $id,
-                    'name' => $request->name,
-                    'land_type' => $request->land_type,
-                    'handphone_number' => $request->handphone_number,
-                    'land_area' => $request->land_area,
-                    'land_location' => $request->land_location,
-                    'fertilizer_quantity_owned' => $request->fertilizer_quantity_owned,
-                    'fertilizer_quantity_needed' => $request->fertilizer_quantity_needed,
-                ]);
-            } else {
+            if ($data) {
                 $data->update([
                     'name' => $request->name,
                     'land_type' => $request->land_type,
@@ -126,7 +115,6 @@ class MasterFarmerController extends Controller
                     'fertilizer_quantity_needed' => $request->fertilizer_quantity_needed,
                 ]);
             }
-
             DB::commit();
             return redirect('master-data/master-farmer')->with('success', 'Data berhasil diperbarui!');
         } catch (\Exception $e) {
@@ -135,9 +123,10 @@ class MasterFarmerController extends Controller
         }
     }
 
-    public function viewForm($id){
+    public function viewForm($id)
+    {
         $data = MasterFarmer::find($id);
         return view('master-farmer.info', ['data' => $data]);
-
     }
+
 }
