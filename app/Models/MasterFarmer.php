@@ -10,6 +10,7 @@ class MasterFarmer extends Model
 {
     use HasFactory, SoftDeletes;
 
+
     protected $fillable = [
         'name',
         'land_type',
@@ -21,4 +22,9 @@ class MasterFarmer extends Model
         'created_at',
         'updated_at',
     ];
+
+
+    public function farmerPlants(){
+        return $this->hasMany(MasterFarmerPlant::class, 'id_master_farmer', 'id');
+    }
 }

@@ -118,7 +118,7 @@ class MasterFarmerController extends Controller
             $data = MasterFarmer::find($id);
             MasterFarmerPlant::where('id_master_farmer', $id)->delete();
             if ($data) {
-               $data->update([
+                $data->update([
                     'name' => $request->name,
                     'land_type' => $request->land_type,
                     'handphone_number' => $request->handphone_number,
@@ -152,5 +152,30 @@ class MasterFarmerController extends Controller
         $plants = MasterFarmerPlant::with(['plant'])->where('id_master_farmer', $id)->get();
         $selectedPlants = $plants->pluck('plant.id')->toArray();
         return view('master-farmer.info', ['data' => $data, 'plants' => $plants, 'selectedPlants' => $selectedPlants]);
+    }
+
+
+    public function listLenderCandidates(Request $request)
+    {
+
+        $data = $request->all();
+        $search_word = !empty($data) ? $data["name"] : '';
+        $data = MasterFarmer::whereRaw('fertilizer_quantity_owned - fertilizer_quantity_needed > 0')->where('name', 'LIKE', '%' . $search_word . '%')
+            ->select('id', DB::raw("CONCAT(name, ' (', fertilizer_quantity_owned - fertilizer_quantity_needed, ' KG)') as name"), DB::raw('fertilizer_quantity_owned - fertilizer_quantity_needed as max'))
+            ->get();
+
+        return response()->json($data);
+    }
+
+
+    public function listBorrowerCandidates(Request $request)
+    {
+        $data = $request->all();
+        $search_word = !empty($data) ? $data["name"] : '';
+        $data = MasterFarmer::whereRaw('fertilizer_quantity_owned - fertilizer_quantity_needed < 0')->where('name', 'LIKE', '%' . $search_word . '%')
+            ->select('id', DB::raw("CONCAT(name, ' (', fertilizer_quantity_owned - fertilizer_quantity_needed, ' KG)') as name"), DB::raw('fertilizer_quantity_owned - fertilizer_quantity_needed as max'))
+            ->get();
+
+        return response()->json($data);
     }
 }

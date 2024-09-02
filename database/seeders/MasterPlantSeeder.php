@@ -12,24 +12,24 @@ class MasterPlantSeeder extends Seeder
      */
     public function run(): void
     {
-    \App\Models\MasterPlant::create(['name' => 'Kelapa']);
-    \App\Models\MasterPlant::create(['name' => 'Padi']);
-    \App\Models\MasterPlant::create(['name' => 'Jagung']);
-    \App\Models\MasterPlant::create(['name' => 'Tebu']);
-    \App\Models\MasterPlant::create(['name' => 'Kopi']);
-    \App\Models\MasterPlant::create(['name' => 'Teh']);
-    \App\Models\MasterPlant::create(['name' => 'Cengkeh']);
-    \App\Models\MasterPlant::create(['name' => 'Lada']);
-    \App\Models\MasterPlant::create(['name' => 'Karet']);
-    \App\Models\MasterPlant::create(['name' => 'Sawit']);
-    \App\Models\MasterPlant::create(['name' => 'Kakao']);
-    \App\Models\MasterPlant::create(['name' => 'Kacang Tanah']);
-    \App\Models\MasterPlant::create(['name' => 'Kacang Hijau']);
-    \App\Models\MasterPlant::create(['name' => 'Kacang Merah']);
-    \App\Models\MasterPlant::create(['name' => 'Kacang Panjang']);
-    \App\Models\MasterPlant::create(['name' => 'Kacang Kedelai']);
-    \App\Models\MasterPlant::create(['name' => 'Kentang']);
-    \App\Models\MasterPlant::create(['name' => 'Wortel']);
-    \App\Models\MasterPlant::create(['name' => 'Tomat']);
+    \App\Models\MasterPlant::create(['name' => 'KELAPA']);
+    \App\Models\MasterPlant::create(['name' => 'PADI']);
+    \App\Models\MasterPlant::create(['name' => 'JAGUNG']);
+    \App\Models\MasterPlant::create(['name' => 'TEBU']);
+    \App\Models\MasterPlant::create(['name' => 'KOPI']);
+    \App\Models\MasterPlant::create(['name' => 'TEH']);
+    \App\Models\MasterPlant::create(['name' => 'CENGKEH']);
+    \App\Models\MasterPlant::create(['name' => 'LADA']);
+    \App\Models\MasterPlant::create(['name' => 'KARET']);
+    \App\Models\MasterPlant::create(['name' => 'SAWIT']);
+    \App\Models\MasterPlant::create(['name' => 'KAKAO']);
+    \App\Models\MasterPlant::create(['name' => 'KACANG TANAH']);
+    \App\Models\MasterPlant::create(['name' => 'KACANG HIJAU']);
+    \App\Models\MasterPlant::create(['name' => 'KACANG MERAH']);
+    \App\Models\MasterPlant::create(['name' => 'KACANG PANJANG']);
+    \App\Models\MasterPlant::create(['name' => 'KACANG KEDELAI']);
+    \App\Models\MasterPlant::create(['name' => 'KENTANG']);
+    \App\Models\MasterPlant::create(['name' => 'WORTEL']);
+    \App\Models\MasterPlant::create(['name' => 'TOMAT']);
     }
 }

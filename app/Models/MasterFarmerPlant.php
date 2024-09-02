@@ -10,6 +10,8 @@ class MasterFarmerPlant extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'master_farmer_plants';
+
     protected $fillable = ['id_master_farmer', 'id_master_plant'];
 
     public function plant(){
