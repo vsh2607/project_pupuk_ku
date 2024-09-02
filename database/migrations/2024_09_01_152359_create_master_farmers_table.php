@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('land_type'); // Owned or Leased
             $table->string('handphone_number');
             $table->string('land_area');
-            $table->string('land_location')->nullable();
-            $table->decimal('fertilizer_quantity_owned', 8, 2)->nullable();
-            $table->decimal('fertilizer_quantity_needed', 8, 2)->nullable();
+            $table->text('land_location');
+            $table->decimal('fertilizer_quantity_owned', 8, 2);
+            $table->decimal('fertilizer_quantity_needed', 8, 2);
             $table->timestamps();
             $table->softDeletes();
         });

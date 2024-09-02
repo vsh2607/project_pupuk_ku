@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\MasterMenu;
 use App\Models\MasterUser;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -18,6 +19,7 @@ class DatabaseSeeder extends Seeder
             [
                 MasterUserSeeder::class,
                 MasterUserTypeSeeder::class,
+                MasterMenuSeeder::class
             ]
         );
     }
