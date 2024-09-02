@@ -79,4 +79,14 @@ class MasterPlantController extends Controller
         $data = MasterPlant::find($id);
         return view('master-plant.info', ['data' => $data]);
     }
+
+
+    public function listAllDataPlant (Request $request){
+
+        $data = $request->all();
+        $search_word = !empty($data) ? $data["name"] : '';
+        $data = MasterPlant::where('name', 'LIKE', '%' . $search_word . '%');
+        $data = $data->get(['id', 'name']);
+        return response()->json($data);
+    }
 }

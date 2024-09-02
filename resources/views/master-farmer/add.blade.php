@@ -103,6 +103,15 @@
                                     class="form-control my-input-decimal" placeholder="Jumlah Pupuk Dibutuhkan">
                             </div>
                         </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="form-group">
+                                <label class="required" for="plant_type">Jenis Tanaman</label>
+                                <select name="plant_type[]" multiple="multiple" id="plant_type"  class="form-control" required>
+                                </select>
+
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -144,6 +153,36 @@
     <script src="/leafletjs/leaflet.js"></script>
     <script>
         $(document).ready(function() {
+
+            $("#land_type").select2();
+
+
+            $('#plant_type').select2({
+                ajax: {
+                    url: "{{ url('resources/list-all-plant') }}",
+                    data: function(params) {
+                        var query = {
+                            name: params.term
+                        };
+                        return query;
+                    },
+                    dataType: 'json',
+                    delay: 250,
+                    processResults: function(data) {
+                        var processedData = $.map(data, function(obj) {
+                            obj.id = obj.id;
+                            obj.text = obj.name;
+                            return obj;
+                        });
+                        return {
+                            results: processedData,
+                        };
+                    },
+                },
+                minimumInputLength: 0,
+
+            });
+
 
             let map = L.map('map').setView([-7.775079291369336, 110.44946003549626], 20);
             let polygonCoords = [];

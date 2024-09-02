@@ -100,6 +100,7 @@
                                     placeholder="Jumlah Pupuk Dimiliki" value="{{ $data->fertilizer_quantity_owned }}">
                             </div>
                         </div>
+
                     </div>
                     <div class="row">
                         <div class="col-lg-6 col-md-12">
@@ -109,6 +110,20 @@
                                 <input required type="text" name="fertilizer_quantity_needed"
                                     id="fertilizer_quantity_needed" class="form-control my-input-decimal"
                                     placeholder="Jumlah Pupuk Dibutuhkan" value="{{ $data->fertilizer_quantity_needed }}">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-12">
+                            <div class="form-group">
+                                <label class="required" for="plant_type">Jenis Tanaman</label>
+                                <select name="plant_type[]" multiple="multiple" id="plant_type" class="form-control"
+                                    required>
+                                    @foreach ($plants as $plant)
+                                        <option value="{{ $plant->plant->id }}"
+                                            {{ in_array($plant->plant->id, $selectedPlants) ? 'selected' : '' }}>
+                                            {{ $plant->plant->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -153,6 +168,35 @@
     <script>
         $(document).ready(function() {
 
+            $("#land_type").select2();
+
+            $('#plant_type').select2({
+                ajax: {
+                    url: "{{ url('resources/list-all-plant') }}",
+                    data: function(params) {
+                        var query = {
+                            name: params.term
+                        };
+                        return query;
+                    },
+                    dataType: 'json',
+                    delay: 250,
+                    processResults: function(data) {
+                        var processedData = $.map(data, function(obj) {
+                            obj.id = obj.id;
+                            obj.text = obj.name;
+                            return obj;
+                        });
+                        return {
+                            results: processedData,
+                        };
+                    },
+                },
+                minimumInputLength: 0,
+
+            });
+
+
             function getPolygonCenter(coords) {
                 let latSum = 0;
                 let lngSum = 0;
@@ -166,7 +210,7 @@
                 return [latSum / numCoords, lngSum / numCoords];
             }
 
-    
+
             let polygonLayer = null;
             let polygonCoords = [];
             let coordString = '';

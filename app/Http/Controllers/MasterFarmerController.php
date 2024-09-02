@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterFarmer;
+use App\Models\MasterFarmerPlant;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,6 @@ class MasterFarmerController extends Controller
 
     public function addData(Request $request)
     {
-
         $request->validate([
             'name' => 'required',
             'land_type' => 'required',
@@ -59,11 +59,12 @@ class MasterFarmerController extends Controller
             'land_location' => 'required',
             'fertilizer_quantity_owned' => 'required',
             'fertilizer_quantity_needed' => 'required',
+            'plant_type' => 'required'
         ]);
 
         DB::beginTransaction();
         try {
-            MasterFarmer::updateOrCreate(
+            $masterFarmer = MasterFarmer::updateOrCreate(
                 [
                     'name' => $request->name,
                     'land_type' => $request->land_type,
@@ -74,6 +75,14 @@ class MasterFarmerController extends Controller
                     'fertilizer_quantity_needed' => $request->fertilizer_quantity_needed,
                 ]
             );
+            foreach ($request->plant_type as  $plant_type) {
+                MasterFarmerPlant::updateOrCreate(
+                    [
+                        'id_master_farmer' => $masterFarmer->id,
+                        'id_master_plant' => $plant_type
+                    ]
+                );
+            }
 
             DB::commit();
             return redirect('master-data/master-farmer')->with('success', 'Data berhasil ditambahkan!');
@@ -86,7 +95,9 @@ class MasterFarmerController extends Controller
     public function editForm($id)
     {
         $data = MasterFarmer::find($id);
-        return view('master-farmer.edit', ['data' => $data]);
+        $plants = MasterFarmerPlant::with(['plant'])->where('id_master_farmer', $id)->get();
+        $selectedPlants = $plants->pluck('plant.id')->toArray();
+        return view('master-farmer.edit', ['data' => $data, 'plants' => $plants, 'selectedPlants' => $selectedPlants]);
     }
 
     public function updateData(Request $request, $id)
@@ -99,13 +110,15 @@ class MasterFarmerController extends Controller
             'land_location' => 'required',
             'fertilizer_quantity_owned' => 'required',
             'fertilizer_quantity_needed' => 'required',
+            'plant_type' => 'required'
         ]);
 
         DB::beginTransaction();
         try {
             $data = MasterFarmer::find($id);
+            MasterFarmerPlant::where('id_master_farmer', $id)->delete();
             if ($data) {
-                $data->update([
+               $data->update([
                     'name' => $request->name,
                     'land_type' => $request->land_type,
                     'handphone_number' => $request->handphone_number,
@@ -114,6 +127,16 @@ class MasterFarmerController extends Controller
                     'fertilizer_quantity_owned' => $request->fertilizer_quantity_owned,
                     'fertilizer_quantity_needed' => $request->fertilizer_quantity_needed,
                 ]);
+
+
+                foreach ($request->plant_type as  $plant_type) {
+                    MasterFarmerPlant::updateOrCreate(
+                        [
+                            'id_master_farmer' => $data->id,
+                            'id_master_plant' => $plant_type
+                        ]
+                    );
+                }
             }
             DB::commit();
             return redirect('master-data/master-farmer')->with('success', 'Data berhasil diperbarui!');
@@ -126,7 +149,8 @@ class MasterFarmerController extends Controller
     public function viewForm($id)
     {
         $data = MasterFarmer::find($id);
-        return view('master-farmer.info', ['data' => $data]);
+        $plants = MasterFarmerPlant::with(['plant'])->where('id_master_farmer', $id)->get();
+        $selectedPlants = $plants->pluck('plant.id')->toArray();
+        return view('master-farmer.info', ['data' => $data, 'plants' => $plants, 'selectedPlants' => $selectedPlants]);
     }
-
 }

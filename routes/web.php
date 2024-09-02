@@ -39,3 +39,9 @@ Route::group(['prefix' => '/master-data', 'middleware' => ['auth']], function ()
         Route::post('/add', [MasterPlantController::class, 'addData']);
     });
 });
+
+
+Route::group(['prefix' => '/resources', 'middleware' => ['auth']], function () {
+    Route::get('/list-all-plant', [MasterPlantController::class, 'listAllDataPlant']);
+
+});
