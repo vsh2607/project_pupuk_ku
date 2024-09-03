@@ -38,13 +38,13 @@
                             <div class="form-group">
                                 <label class="required" for="periode">Periode</label>
                                 <input type="text" required name="periode" id="periode" class="form-control my-input"
-                                    value="PERIODE 1" readonly>
+                                    value="PERIODE {{ ++$totalPeriodeDistribution }}" readonly>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
                             <div class="form-group">
-                                <label class="required" for="date">Tanggal</label>
-                                <input type="date" required name="date" id="date" class="form-control my-input"
+                                <label class="required" for="periode_date">Tanggal</label>
+                                <input type="date" required name="periode_date" id="periode_date" class="form-control my-input"
                                     placeholder="Masukkan Tanggal" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
                                     min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
                             </div>
@@ -93,15 +93,7 @@
         $(document).ready(function() {
 
 
-            function getLenderMaxRemainder(lenderId) {
 
-                let lenderData = {
-                    'Lender1': 200,
-                    'Lender2': 250,
-                };
-
-                return lenderData[lenderId] || 0;
-            }
 
             function getCurrentBorrowedTotal(borrowerId) {
                 let totalBorrowed = 0;
@@ -181,6 +173,7 @@
                             var data = $.map(data, function(obj) {
                                 obj.id = obj.id;
                                 obj.text = obj.name;
+                                obj.max = obj.max
                                 return obj;
                             });
                             return {
@@ -193,8 +186,6 @@
                 });
 
             }
-
-
 
             borrowerNameSelect2();
             lenderNameSelect2();
@@ -266,45 +257,99 @@
                 borrowerNameSelect2();
                 lenderNameSelect2();
 
+                $(".borrower_name").on("change", function() {
+                    let inputTotalLoan = $(this).closest("tr").find(".total_loan");
+                    inputTotalLoan.val(0);
+                    let name = $(this).select2('data').map(function(option) {
+                        return option.name.replace(/\s*\(.*\)/, '');
+                    })
+                    let maxNeeded = $(this).select2('data').map(function(option) {
+                        return Math.abs(option.max);
+                    });
+                    maxNeeded = maxNeeded[0];
+                    let borrowerId = $(this).val();
+                    let totalBorrowed = getCurrentBorrowedTotal(borrowerId);
 
-                $(document).on('select2:select', "select[name='borrower_name[]']", function(e) {
-                    let selectedData = e.params.data;
-                    let max = Math.abs(selectedData.max);
-                    let name = selectedData.name.replace(/\s*\(.*\)/, '');
-                    let totalBorrowed = getCurrentBorrowedTotal($(this).val());
 
+                    //For Lender
+                    let lender = $(this).closest("tr").find(".lender_name");
+                    let lender_id = lender.val();
+                    let lenderMaxLended = lender.select2('data').map(function(option) {
+                        return Math.abs(option.max);
+                    });
 
-                    if (totalBorrowed >= max) {
+                    lenderMaxLended = lenderMaxLended[0];
+                    let lenderTotalLended = getCurrentLendedTotal(lender_id);
+
+                    let remainderBorrowed = maxNeeded - totalBorrowed;
+                    let remainderLended = lenderMaxLended - lenderTotalLended;
+
+                    if (remainderBorrowed <= remainderLended) {
+                        inputTotalLoan.attr('max', remainderBorrowed)
+                        inputTotalLoan.val(remainderBorrowed)
+                    } else {
+                        inputTotalLoan.attr('max', remainderLended);
+                        inputTotalLoan.val(remainderLended);
+                    }
+
+                    if (totalBorrowed >= maxNeeded) {
                         Swal.fire({
                             title: 'Info',
-                            text: `Pinjaman Petani ${name} Sudah Melebihi Dari Yang Dibutuhkan, yaitu ${max} KG`,
+                            text: `Pinjaman Petani ${name} Sudah Sesuai Yang Dibutuhkan, yaitu ${maxNeeded} KG`,
 
                         });
                         $(this).closest('tr').remove();
                     }
 
 
-
                 });
 
-                $(document).on('select2:select', "select[name='lender_name[]']", function(e) {
+                $(".lender_name").on("change", function() {
+                    let name = $(this).select2('data').map(function(option) {
+                        return option.name.replace(/\s*\(.*\)/, '');
+                    })
+                    let inputTotalLoan = $(this).closest("tr").find(".total_loan");
+                    inputTotalLoan.val(0);
+                    let maxLended = $(this).select2('data').map(function(option) {
+                        return Math.abs(option.max);
+                    });
+                    maxLended = maxLended[0];
+                    let lenderId = $(this).val();
+                    let totalLended = getCurrentLendedTotal(lenderId);
 
-                    let selectedData = e.params.data;
-                    let max = Math.abs(selectedData.max);
-                    let name = selectedData.name.replace(/\s*\(.*\)/, '');
-                    let totalLended = getCurrentLendedTotal($(this).val())
+                    //For Borrower
+                    let borrower = $(this).closest("tr").find(".borrower_name");
+                    let borrower_id = borrower.val();
+                    let borrowerMaxBorrowed = borrower.select2('data').map(function(option) {
+                        return Math.abs(option.max);
+                    });
 
-                    if (totalLended >= max) {
+                    borrowerMaxBorrowed = borrowerMaxBorrowed[0];
+                    let borrowerTotalBorrowed = getCurrentBorrowedTotal(borrower_id);
+
+
+                    let remainderLended = maxLended - totalLended;
+                    let remainderBorrowed = borrowerMaxBorrowed - borrowerTotalBorrowed;
+
+                    if (remainderBorrowed <= remainderLended) {
+                        inputTotalLoan.attr('max', remainderBorrowed)
+                        inputTotalLoan.val(remainderBorrowed)
+                    } else {
+                        inputTotalLoan.attr('max', remainderLended);
+                        inputTotalLoan.val(remainderLended);
+                    }
+
+
+                    if (totalLended >= maxLended) {
                         Swal.fire({
                             title: 'Info',
-                            text: `Petani ${name} Sudah Meminjamkan Melebihi Dari Yang Dimiliki, yaitu ${max} KG`,
+                            text: `Petani ${name} Sudah Meminjamkan Semua Dari Yang Dimiliki, yaitu ${maxLended} KG`,
 
                         });
                         $(this).closest('tr').remove();
                     }
-
-
                 });
+
 
             });
 

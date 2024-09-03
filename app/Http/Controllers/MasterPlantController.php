@@ -35,8 +35,8 @@ class MasterPlantController extends Controller
 
     public function addData(Request $request)
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $requestData = $request->only('name');
             MasterPlant::create($requestData);
             DB::commit();
@@ -57,8 +57,8 @@ class MasterPlantController extends Controller
 
     public function updateData(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $requestData = $request->only('name');
             $data = MasterPlant::find($id);
             if ($data) {

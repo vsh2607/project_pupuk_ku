@@ -49,11 +49,12 @@
                                 <th>Jenis Lahan</th>
                                 <th>Jenis Tanaman</th>
                                 <th>Jumlah Pupuk (Dipunya)</th>
-                                <th>Jumlah Pupuk (Meminjam)</th>
-                                <th>Jumlah Pupuk (Dipinjam)</th>
                                 <th>Jumlah Pupuk (Dibutuhkan)</th>
+                                <th>Jumlah Pupuk (Dipinjamkan)</th>
+                                <th>Jumlah Pupuk (Meminjam)</th>
                                 <th>Sisa Pupuk</th>
                                 <th>Status</th>
+                                <th>Status Pinjaman</th>
                                 {{-- <th>Action</th> --}}
                             </tr>
                         </thead>
@@ -206,12 +207,25 @@
                         name: 'fertilizer_quantity_needed'
                     },
                     {
+                        data: 'totalLended',
+                        name: 'totalLended',
+                    },
+                    {
+                        data: 'totalBorrowed',
+                        name: 'totalBorrowed',
+                    },
+
+                    {
                         data: 'fertilizer_quantity_remainder',
                         name: 'fertilizer_quantity_remainder'
                     },
                     {
                         data: 'status',
                         name: 'status'
+                    },
+                    {
+                        data: 'loan_status',
+                        name: 'loan_status'
                     }
 
                 ]

@@ -160,10 +160,15 @@ class MasterFarmerController extends Controller
 
         $data = $request->all();
         $search_word = !empty($data) ? $data["name"] : '';
-        $data = MasterFarmer::whereRaw('fertilizer_quantity_owned - fertilizer_quantity_needed > 0')->where('name', 'LIKE', '%' . $search_word . '%')
-            ->select('id', DB::raw("CONCAT(name, ' (', fertilizer_quantity_owned - fertilizer_quantity_needed, ' KG)') as name"), DB::raw('fertilizer_quantity_owned - fertilizer_quantity_needed as max'))
+
+        $data = MasterFarmer::with(['farmerBorrower'])->where('name', 'LIKE', '%' . $search_word . '%')
+            ->select('id', DB::raw("CONCAT(name, ' (', (fertilizer_quantity_owned - fertilizer_quantity_needed) - (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_lender = master_farmers.id), ' KG)') as name"), DB::raw('(fertilizer_quantity_owned - fertilizer_quantity_needed) - (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_lender = master_farmers.id) as max'), 'fertilizer_quantity_owned AS fqo', 'fertilizer_quantity_needed AS fqn')
+            ->addSelect(DB::raw('(SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_lender = master_farmers.id) AS total_lender'))
+            ->havingRaw('total_lender <= fqo')
+            ->havingRaw('fqo - total_lender - fqn > 0')
             ->get();
 
+     
         return response()->json($data);
     }
 
@@ -172,9 +177,14 @@ class MasterFarmerController extends Controller
     {
         $data = $request->all();
         $search_word = !empty($data) ? $data["name"] : '';
-        $data = MasterFarmer::whereRaw('fertilizer_quantity_owned - fertilizer_quantity_needed < 0')->where('name', 'LIKE', '%' . $search_word . '%')
-            ->select('id', DB::raw("CONCAT(name, ' (', fertilizer_quantity_owned - fertilizer_quantity_needed, ' KG)') as name"), DB::raw('fertilizer_quantity_owned - fertilizer_quantity_needed as max'))
+
+        $data = MasterFarmer::with(['farmerBorrower'])->where('name', 'LIKE', '%' . $search_word . '%')
+            ->select('id', DB::raw("CONCAT(name, ' (', (fertilizer_quantity_owned - fertilizer_quantity_needed) + (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = master_farmers.id), ' KG)') as name"), DB::raw('(fertilizer_quantity_owned - fertilizer_quantity_needed) + (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = master_farmers.id) as max'), 'fertilizer_quantity_owned AS fqo', 'fertilizer_quantity_needed AS fqn')
+            ->addSelect(DB::raw('(SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = master_farmers.id) AS total_borrowed'))
+            ->having('total_borrowed', '=', 0)
+            ->havingRaw('fqo + total_borrowed - fqn < 0')
             ->get();
+
 
         return response()->json($data);
     }
