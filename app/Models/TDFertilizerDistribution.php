@@ -18,4 +18,12 @@ class TDFertilizerDistribution extends Model
         'total_return'
     ];
     protected $table = 'td_fertilizer_distribution';
+
+    public function farmerBorrower(){
+        return $this->belongsTo(MasterFarmer::class, 'id_farmer_borrower', 'id');
+    }
+
+    public function farmerLender(){
+        return $this->belongsTo(MasterFarmer::class, 'id_farmer_lender', 'id');
+    }
 }

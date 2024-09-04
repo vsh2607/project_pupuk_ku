@@ -73,6 +73,15 @@ class MasterMenuSeeder extends Seeder
             'priority' => 0,
             'icon' => ''
         ]);
+        MasterMenu::create([
+            'level' => 5,
+            'title' => ' Periode Distribusi Pupuk',
+            'code' => 'fertilizer-distribution-periode',
+            'is_dropdown' => 0,
+            'is_hidden' => 0,
+            'priority' => 0,
+            'icon' => ''
+        ]);
 
 
     }

@@ -33,8 +33,9 @@
             <div class="card-header">
 
                 <a href="{{ url('/module-management/fertilizer-distribution/add') }}"
-                    class="btn btn-success btn-md float-right" >+ Tambah</a>
-                <button class="btn btn-info btn-md btn-show-map float-right" style="margin-right: 10px" type="button"><i class="fas fa-map"></i>
+                    class="btn btn-success btn-md float-right">+ Tambah</a>
+                <button class="btn btn-info btn-md btn-show-map float-right" style="margin-right: 10px" type="button"><i
+                        class="fas fa-map"></i>
                     Tampilkan Peta</button>
             </div>
 
@@ -80,6 +81,49 @@
             </div>
 
 
+            <div class="modal fade" role="dialog" id="borrowModal">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h4 class="modal-title">DAFTAR PINJAMAN PUPUK</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-header">
+                            <div class="alert alert-success d-none" role="alert" id="successAlert">
+
+                            </div>
+                            <div class="alert alert-danger d-none" role="alert" id="errorAlert">
+
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive" style="overflow-x: auto;">
+                                <table class="table" id="myPinjamanTable" style="width: 100%;">
+                                    <table class="table" id="myPinjamanTable" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama Peminjam</th>
+                                                <th>Nama Pemberi</th>
+                                                <th>Sisa Pinjaman</th>
+                                                <th>Tanggal Pinjaman</th>
+                                                <th>Total Pengembalian</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                            </div>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
 
         </div>
 
@@ -98,6 +142,88 @@
 
     <script>
         $(document).ready(function() {
+
+
+            function updateTableAjax(lenderIds, borrowerId) {
+                $.ajax({
+                    method: 'POST',
+                    url: "{{ url('/resources/list-lender-lended/') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        borrowerId: borrowerId,
+                        lenderIds: lenderIds,
+                    },
+                    success: function(response) {
+                        console.log(response)
+                        let tbody = '';
+                        response.forEach(function(item) {
+                            tbody += '<tr>';
+                            tbody += '<td>' + item.farmer_borrower.borrower_name +
+                                '</td>';
+                            tbody += '<td>' + item.farmer_lender.lender_name + '</td>';
+                            tbody += '<td>' + (parseFloat(item.total_loan) - parseFloat(
+                                item.total_return)) + ' KG</td>';
+                            tbody += '<td>' + item.created_at.split('T')[0] + '</td>';
+                            tbody +=
+                                '<td><input type="number" class="form-control" name="total_returned" min="0"></td>';
+                            tbody +=
+                                '<td><button type="button" class="btn btn-primary save-return" data-id="' +
+                                item.id + '" data-lender-ids="' + lenderIds +
+                                '" data-borrower-id="' + borrowerId + '">Save</button></td>';
+                            tbody += '</tr>';
+                        });
+                        $('#myPinjamanTable tbody').append(tbody);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            }
+
+
+
+            $(document).on('click', '#borrowButtonModal', function() {
+                let borrowerId = $(this).data('borrower-id');
+                let lenderIds = $(this).data('lender-ids');
+                $("#borrowModal").modal('show');
+
+                updateTableAjax(lenderIds, borrowerId);
+
+            });
+
+            $(document).on('click', '.save-return', function() {
+                let total_returned = $(this).closest('tr').find('input[name="total_returned"]').val();
+                let distribution_id = $(this).data('id');
+                let borrowerId = $(this).data('borrower-id');
+                let lenderIds = $(this).data('lender-ids');
+                $.ajax({
+                    method: 'POST',
+                    url: "{{ url('/module-management/fertilizer-distribution/update-loan') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        total_returned: total_returned,
+                        distribution_id: distribution_id
+                    },
+                    success: function(response) {
+                        $('#successAlert').text(response.message).removeClass('d-none');
+                        setTimeout(function() {
+                            $('#successAlert').addClass('d-none');
+                        }, 2000);
+                        $('#myPinjamanTable tbody').empty();
+                        updateTableAjax(lenderIds, borrowerId);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                        $('#errorAlert').text(response.error).removeClass('d-none');
+                        setTimeout(function() {
+                            $('#errorAlert').addClass('d-none');
+                        }, 2000);
+                    }
+                })
+
+            })
+
+
 
             let mapData = @json($mapData);
 

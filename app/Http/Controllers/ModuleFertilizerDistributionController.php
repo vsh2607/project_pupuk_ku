@@ -30,7 +30,9 @@ class ModuleFertilizerDistributionController extends Controller
             ->addColumn('loan_status', function ($model) {
                 if ($model->total_borrowed != null) {
                     if ($model->total_borrowed > 0) {
-                        return '<a href="#" class="open-dialog" data-message="Masih ada Pinjaman">Masih ada Pinjaman</a>';
+                        $lenderIds = $model->farmerBorrower->pluck('id_farmer_lender')->unique()->toArray();
+                        $lenderIdsString = implode(',', $lenderIds);
+                        return '<a href="#" class="open-dialog" id="borrowButtonModal" data-borrower-id="' . $model->id . '" data-lender-ids="' . $lenderIdsString . '">Masih ada Pinjaman</a>';
                     }
                 }
                 return '-';
@@ -121,6 +123,46 @@ class ModuleFertilizerDistributionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect('/module-management/fertilizer-distribution')->with('error', $e->getMessage());
+        }
+    }
+
+
+    public function listLenderLended(Request $request)
+    {
+
+        $borrowerId = $request->borrowerId;
+        $lenderIds = explode(',', $request->lenderIds);
+        $loanData = TDFertilizerDistribution::with([
+            'farmerBorrower' => function ($query) {
+                $query->select('id', 'name as borrower_name');
+            },
+            'farmerLender' => function ($query) {
+                $query->select('id', 'name as lender_name');
+            }
+        ])
+            ->where('id_farmer_borrower', $borrowerId)
+            ->whereIn('id_farmer_lender', $lenderIds)
+            ->whereRaw('total_loan - total_return > 0')
+            ->select('id', 'total_loan', 'total_return', 'created_at', 'id_farmer_borrower', 'id_farmer_lender')
+            ->get();
+
+
+        return response()->json($loanData);
+    }
+
+    public function updateLoan(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $distributionData = TDFertilizerDistribution::find($request->distribution_id);
+            $distributionData->update([
+                'total_return' => $request->total_returned + $distributionData->total_return
+            ]);
+            DB::commit();
+            return response()->json(['message' => 'Pinjaman Berhasil Dikembalikan!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }
