@@ -50,8 +50,16 @@ Route::group(['prefix' => '/module-management', 'middleware' => ['auth']], funct
         Route::post('{id}/edit', [ModuleFertilizerDistributionController::class, 'updateData']);
         Route::get('/add', [ModuleFertilizerDistributionController::class, 'addForm']);
         Route::post('/add', [ModuleFertilizerDistributionController::class, 'addData']);
-
         Route::post('/update-loan', [ModuleFertilizerDistributionController::class, 'updateLoan']);
+
+    });
+
+
+    Route::prefix('/fertilizer-distribution-periode')->group(function(){
+        Route::get('/', [ModuleFertilizerDistributionController::class, 'indexPeriode']);
+        Route::get('/list-data-periode', [ModuleFertilizerDistributionController::class, 'listDataPeriode']);
+        Route::get('{id}/print', [ModuleFertilizerDistributionController::class, 'printData']);
+
     });
 
 });
@@ -61,7 +69,6 @@ Route::group(['prefix' => '/resources', 'middleware' => ['auth']], function () {
     Route::get('/list-all-plant', [MasterPlantController::class, 'listAllDataPlant']);
     Route::get('/list-lender-candidates',[MasterFarmerController::class, 'listLenderCandidates']);
     Route::get('/list-borrower-candidates',[MasterFarmerController::class, 'listBorrowerCandidates']);
-
     Route::post('/list-lender-lended', [ModuleFertilizerDistributionController::class, 'listLenderLended']); //list pemberi peminjaman
 
 });

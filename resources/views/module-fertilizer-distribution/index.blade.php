@@ -31,9 +31,6 @@
     <div class="container-fluid" style="margin-top:20px; text-transform: uppercase;">
         <div class="card">
             <div class="card-header">
-
-                <a href="{{ url('/module-management/fertilizer-distribution/add') }}"
-                    class="btn btn-success btn-md float-right">+ Tambah</a>
                 <button class="btn btn-info btn-md btn-show-map float-right" style="margin-right: 10px" type="button"><i
                         class="fas fa-map"></i>
                     Tampilkan Peta</button>
@@ -117,7 +114,8 @@
                             </table>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                onclick="window.location.reload()">Tutup</button>
                         </div>
                     </div>
                 </div>
@@ -154,7 +152,12 @@
                         lenderIds: lenderIds,
                     },
                     success: function(response) {
-                        console.log(response)
+                        console.log(response.length);
+                        if (response.length == 0) {
+                            window.location.reload();
+                            return;
+                        }
+
                         let tbody = '';
                         response.forEach(function(item) {
                             tbody += '<tr>';
@@ -165,11 +168,11 @@
                                 item.total_return)) + ' KG</td>';
                             tbody += '<td>' + item.created_at.split('T')[0] + '</td>';
                             tbody +=
-                                '<td><input type="number" class="form-control" name="total_returned" min="0"></td>';
+                                '<td><input type="number" class="form-control" name="total_returned" min="0" max="' +
+                                (parseFloat(item.total_loan) - parseFloat(
+                                    item.total_return)) + '"></td>';
                             tbody +=
-                                '<td><button type="button" class="btn btn-primary save-return" data-id="' +
-                                item.id + '" data-lender-ids="' + lenderIds +
-                                '" data-borrower-id="' + borrowerId + '">Save</button></td>';
+                                '<td><button type="button" class="btn btn-primary save-return" data-total-loan="'+(parseFloat(item.total_loan) - parseFloat(item.total_return))+'" data-id="' + item.id + '" data-lender-ids="' + lenderIds + '" data-borrower-id="' + borrowerId +'">Save</button></td>';
                             tbody += '</tr>';
                         });
                         $('#myPinjamanTable tbody').append(tbody);
@@ -180,9 +183,8 @@
                 });
             }
 
-
-
             $(document).on('click', '#borrowButtonModal', function() {
+                $('#myPinjamanTable tbody').empty();
                 let borrowerId = $(this).data('borrower-id');
                 let lenderIds = $(this).data('lender-ids');
                 $("#borrowModal").modal('show');
@@ -196,6 +198,21 @@
                 let distribution_id = $(this).data('id');
                 let borrowerId = $(this).data('borrower-id');
                 let lenderIds = $(this).data('lender-ids');
+                let total_loan = $(this).data('total-loan');
+
+
+                if(total_returned < 0){
+                    alert("Total Tidak Boleh Kurang dari 0");
+                    return;
+                }else if(total_returned > total_loan){
+                    alert("Total Tidak Boleh Lebih dari Pinjaman");
+                    return;
+                }else if(total_returned == 0 || total_returned === ''){
+                    alert("Total Tidak Boleh Kosong");
+                    return;
+                }
+
+
                 $.ajax({
                     method: 'POST',
                     url: "{{ url('/module-management/fertilizer-distribution/update-loan') }}",
@@ -219,11 +236,9 @@
                             $('#errorAlert').addClass('d-none');
                         }, 2000);
                     }
-                })
+                });
 
             })
-
-
 
             let mapData = @json($mapData);
 

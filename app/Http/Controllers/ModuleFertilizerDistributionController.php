@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\THFertilizerDistribution;
 use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ModuleFertilizerDistributionController extends Controller
 {
@@ -17,6 +18,65 @@ class ModuleFertilizerDistributionController extends Controller
 
 
         return view('module-fertilizer-distribution.index', ['mapData' => $mapData]);
+    }
+
+
+    public function indexPeriode()
+    {
+        return view('module-fertilizer-distribution-periode.index');
+    }
+
+    public function listDataPeriode(Request $request)
+    {
+        $model = THFertilizerDistribution::with(['tdFertilizerDistribution']);
+        return DataTables::of($model)
+            ->editColumn('periode', function ($model) {
+                return 'PERIODE - ' . $model->periode;
+            })
+            ->addColumn('action', function ($model) {
+                $editButton = "&nbsp;<a href='" . url('module-management/fertilizer-distribution-periode/' . $model->id . '/edit') . "' class='btn btn-warning'><i class='fas fa-edit'></i></a>";
+                $infoButton = "<a href='" . url('module-management/fertilizer-distribution-periode/' . $model->id . '/info') . "' class='btn btn-primary'><i class='fas fa-info'></i></a>";
+                $printButton = "<a href='" . url('module-management/fertilizer-distribution-periode/' . $model->id . '/print') . "' class='btn btn-primary'><i class='fas fa-print'></i></a>";
+                return $printButton;
+            })
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+
+    public function printData($id)
+    {
+        $data = THFertilizerDistribution::with(['tdFertilizerDistribution', 'tdFertilizerDistribution.farmerBorrower', 'tdFertilizerDistribution.farmerLender'])->where('id', $id)->first();
+        $pdf = Pdf::loadView('module-fertilizer-distribution-periode.print', ['data' => $data]);
+        return $pdf->stream('test.pdf');
+    }
+
+    public function editForm($id)
+    {
+        // $data = THFertilizerDistribution::with(['tdFertilizerDistribution', 'tdFertilizerDistribution.farmerBorrower', 'tdFertilizerDistribution.farmerLender'])->first();
+
+        $data = THFertilizerDistribution::join('td_fertilizer_distribution as tfd', 'th_fertilizer_distribution.id', '=', 'tfd.id_th_fertilizer_distribution')
+            ->join('master_farmers as mf_borrower', 'tfd.id_farmer_borrower', 'mf_borrower.id')
+            ->join('master_farmers as mf_lender', 'tfd.id_farmer_lender', 'mf_lender.id')
+            ->where('th_fertilizer_distribution.id', $id)
+            ->select('th_fertilizer_distribution.id', 'mf_borrower.name AS borrower_name', 'mf_lender.name AS lender_name', 'tfd.total_loan', 'mf_borrower.id AS borrower_id', 'mf_lender.id AS lender_id')
+            ->addSelect(DB::raw('(SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = mf_borrower.id) AS total_borrowed'))
+            ->addSelect(DB::raw("CONCAT(mf_borrower.name, ' (', (fertilizer_quantity_owned - fertilizer_quantity_needed) + (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = mf_borrower.id), ' KG)') as borrower_name_alias"))
+            ->addSelect(DB::raw('(fertilizer_quantity_owned - fertilizer_quantity_needed) + (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = mf_borrower.id) as borrower_max'))
+            ->get();
+
+        dd($data);
+
+
+        // $data = MasterFarmer::with(['farmerBorrower'])->where('name', 'LIKE', '%' . $search_word . '%')
+        //     ->select('id', DB::raw("CONCAT(name, ' (', (fertilizer_quantity_owned - fertilizer_quantity_needed) + (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = master_farmers.id), ' KG)') as name"), DB::raw('(fertilizer_quantity_owned - fertilizer_quantity_needed) + (SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = master_farmers.id) as max'), 'fertilizer_quantity_owned AS fqo', 'fertilizer_quantity_needed AS fqn')
+        //     ->addSelect(DB::raw('(SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = master_farmers.id) AS total_borrowed'))
+        //     ->having('total_borrowed', '=', 0)
+        //     ->havingRaw('fqo + total_borrowed - fqn < 0')
+        //     ->get();
+
+
+        // dd($data);
     }
 
     public function listData(Request $request)
@@ -119,10 +179,10 @@ class ModuleFertilizerDistributionController extends Controller
             }
 
             DB::commit();
-            return redirect('/module-management/fertilizer-distribution')->with('success', 'Data berhasil ditambahkan!');
+            return redirect('/module-management/fertilizer-distribution-periode')->with('success', 'Data berhasil ditambahkan!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect('/module-management/fertilizer-distribution')->with('error', $e->getMessage());
+            return redirect('/module-management/fertilizer-distribution-periode')->with('error', $e->getMessage());
         }
     }
 

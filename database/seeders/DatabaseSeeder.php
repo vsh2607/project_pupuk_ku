@@ -20,7 +20,9 @@ class DatabaseSeeder extends Seeder
                 MasterUserSeeder::class,
                 MasterUserTypeSeeder::class,
                 MasterMenuSeeder::class,
-                MasterPlantSeeder::class
+                MasterPlantSeeder::class,
+                MasterFarmerPlantSeeder::class,
+                MasterFarmerSeeder::class,
             ]
         );
     }
