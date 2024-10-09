@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\ModuleFertilizerDistributionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\MasterFarmerController;
 use App\Http\Controllers\MasterPlantController;
+use App\Http\Controllers\MasterFarmerController;
+use App\Http\Controllers\MasterFertilizerController;
+use App\Http\Controllers\ModuleFertilizerDistributionController;
 
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate']);
@@ -39,6 +40,18 @@ Route::group(['prefix' => '/master-data', 'middleware' => ['auth']], function ()
         Route::get('/add', [MasterPlantController::class, 'addForm']);
         Route::post('/add', [MasterPlantController::class, 'addData']);
     });
+
+    Route::prefix('/master-fertilizer')->group(function () {
+        Route::get('/', [MasterFertilizerController::class, 'index']);
+        Route::get('/list-data', [MasterFertilizerController::class, 'listData']);
+        Route::get('{id}/info', [MasterFertilizerController::class, 'viewForm']);
+        Route::get('{id}/edit', [MasterFertilizerController::class, 'editForm']);
+        Route::post('{id}/edit', [MasterFertilizerController::class, 'updateData']);
+        Route::get('/add', [MasterFertilizerController::class, 'addForm']);
+        Route::post('/add', [MasterFertilizerController::class, 'addData']);
+    });
+
+
 });
 
 Route::group(['prefix' => '/module-management', 'middleware' => ['auth']], function () {
@@ -67,6 +80,7 @@ Route::group(['prefix' => '/module-management', 'middleware' => ['auth']], funct
 
 Route::group(['prefix' => '/resources', 'middleware' => ['auth']], function () {
     Route::get('/list-all-plant', [MasterPlantController::class, 'listAllDataPlant']);
+    Route::get('/list-all-fertilizer', [MasterFertilizerController::class, 'listAllDataFertilizer']);
     Route::get('/list-lender-candidates',[MasterFarmerController::class, 'listLenderCandidates']);
     Route::get('/list-borrower-candidates',[MasterFarmerController::class, 'listBorrowerCandidates']);
     Route::post('/list-lender-lended', [ModuleFertilizerDistributionController::class, 'listLenderLended']); //list pemberi peminjaman

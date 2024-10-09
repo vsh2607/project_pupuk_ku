@@ -32,7 +32,7 @@
         </div>
     @endif
     <div class="container-fluid" style="margin-top:20px; text-transform: uppercase;">
-        <form method="POST">
+        <form method="POST" autocomplete="off">
             <div class="card">
                 <div class="card-body">
                     @csrf
@@ -67,8 +67,8 @@
                         <div class="col-lg-6 col-md-12">
                             <div class="form-group">
                                 <label class="required" for="land_area">Luas Lahan (m<sup>2</sup>)</label>
-                                <input type="text" required name="land_area" id="land_area" class="form-control my-input-int"
-                                    placeholder="Luas Lahan">
+                                <input type="text" required name="land_area" id="land_area"
+                                    class="form-control my-input-int" placeholder="Luas Lahan">
                             </div>
                         </div>
                     </div>
@@ -87,32 +87,59 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-lg-6 col-md-12">
+                            <div class="form-group">
+                                <label class="required" for="plant_type">Jenis Tanaman</label>
+                                <select name="plant_type[]" multiple="multiple" id="plant_type" class="form-control"
+                                    required>
+                                </select>
+
+                            </div>
+                        </div>
+                        {{-- <div class="col-lg-6 col-md-12">
                             <div class="form-group">
                                 <label class="required" for="fertilizer_quantity_owned">Jumlah Pupuk Dimiliki (KG)</label>
                                 <input required type="text" name="fertilizer_quantity_owned" id="fertilizer_quantity_owned"
                                     class="form-control my-input-decimal" placeholder="Jumlah Pupuk Dimiliki">
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="row">
-                        <div class="col-lg-6 col-md-12">
+                        {{-- <div class="col-lg-6 col-md-12">
                             <div class="form-group">
                                 <label class="required" for="fertilizer_quantity_needed">Jumlah Pupuk Dibutuhkan (KG)</label>
                                 <input required type="text" name="fertilizer_quantity_needed" id="fertilizer_quantity_needed"
                                     class="form-control my-input-decimal" placeholder="Jumlah Pupuk Dibutuhkan">
                             </div>
-                        </div>
-                        <div class="col-lg-6 col-md-12">
-                            <div class="form-group">
-                                <label class="required" for="plant_type">Jenis Tanaman</label>
-                                <select name="plant_type[]" multiple="multiple" id="plant_type"  class="form-control" required>
-                                </select>
+                        </div> --}}
 
-                            </div>
-                        </div>
 
                     </div>
+
+                    <hr>
+                    <p style="font-weight: bold;">Daftar Pupuk Kepemilikan</p>
+                    <hr>
+                    <div>
+                        <table class="table" style="width: 100%;" id="table-fertilizer">
+                            <thead>
+                                <tr>
+
+                                    <th>JENIS PUPUK</th>
+                                    <th>QTY DIMILIKI</th>
+                                    <th>&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <br>
+                        <button class="btn btn-primary" type="button" style="width: 100%;" id="btnAddRow">
+                            Tambah Jenis Pupuk
+                        </button>
+                    </div>
+
+
                 </div>
 
                 <div class="card-footer">
@@ -155,6 +182,56 @@
         $(document).ready(function() {
 
             $("#land_type").select2();
+
+            $("#btnAddRow").click(function() {
+                let content = `
+                    <tr>
+                        <td>
+                             <select name="fertilizer_name[]" class="form-control fertilizer-select" style="width=100%;" required>
+                            </select>
+                        </td>
+                        <td><input type="text" name="fertilizer_qty_owned[]" id="fertilizer_qty_owned" class="form-control my-input-decimal" placeholder="Masukkan Qty Dimiliki" required></td>
+                        <td><button class="btn btn-danger" id="btnDeleteRow"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `;
+
+                $("#table-fertilizer").append(content);
+
+
+
+                $(".fertilizer-select").last().select2({
+                    ajax: {
+                        url: "{{ url('resources/list-all-fertilizer') }}",
+                        data: function(params) {
+                            var query = {
+                                name: params.term
+                            };
+                            return query;
+                        },
+                        dataType: 'json',
+                        delay: 250,
+                        processResults: function(data) {
+                            var processedData = $.map(data, function(obj) {
+                                obj.id = obj.id;
+                                obj.text = obj.name;
+                                return obj;
+                            });
+                            return {
+                                results: processedData,
+                            };
+                        },
+                    },
+                    minimumInputLength: 0,
+                    placeholder: 'Pilih Jenis Pupuk',
+                    width: '100%'
+                });
+            });
+
+            $("#table-fertilizer").on('click', '#btnDeleteRow', function() {
+                $(this).closest('tr').remove();
+            });
+
+
 
 
             $('#plant_type').select2({
@@ -217,7 +294,7 @@
                 }, 500);
             });
 
-            $('.btn-save-map').click(function(){
+            $('.btn-save-map').click(function() {
                 $('#land_location').val(polygonCoords);
                 $('#myModal').modal('hide');
             });
@@ -241,6 +318,10 @@
             $(".my-input-decimal").on('input', function() {
                 this.value = this.value.replace(/[^0-9.]/g, '');
             });
+            $(document).on('input', '.my-input-decimal', function(){
+                this.value = this.value.replace(/[^0-9.]/g, '');
+
+            })
         });
     </script>
 @stop

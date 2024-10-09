@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Tambah Data Petani')
+@section('title', 'Info Petani')
 
 @section('adminlte_css_pre')
     <link rel="icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon">
@@ -17,7 +17,7 @@
 @endsection
 
 @section('content_header')
-    <h1>Tambah Data Petani</h1>
+    <h1>Info Petani</h1>
 @stop
 
 @section('content')
@@ -83,24 +83,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-12">
-                        <div class="form-group">
-                            <label class="required" for="fertilizer_quantity_owned">Jumlah Pupuk Dimiliki (KG)</label>
-                            <input required type="text" name="fertilizer_quantity_owned" id="fertilizer_quantity_owned"
-                                class="form-control my-input-decimal" placeholder="Jumlah Pupuk Dimiliki"
-                                value="{{ $data->fertilizer_quantity_owned }}" readonly>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-12">
-                        <div class="form-group">
-                            <label class="required" for="fertilizer_quantity_needed">Jumlah Pupuk Dibutuhkan (KG)</label>
-                            <input required type="text" name="fertilizer_quantity_needed" id="fertilizer_quantity_needed"
-                                class="form-control my-input-decimal" placeholder="Jumlah Pupuk Dibutuhkan"
-                                value="{{ $data->fertilizer_quantity_needed }}" readonly>
-                        </div>
-                    </div>
 
                     <div class="col-lg-6 col-md-12">
                         <div class="form-group">
@@ -115,6 +97,41 @@
                         </div>
                     </div>
                 </div>
+
+
+                <hr>
+                    <p style="font-weight: bold;">Daftar Pupuk Kepemilikan</p>
+                    <hr>
+                    <div>
+                        <table class="table" style="width: 100%;" id="table-fertilizer">
+                            <thead>
+                                <tr>
+
+                                    <th>JENIS PUPUK</th>
+                                    <th>QTY DIMILIKI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($fertilizers as $key => $item)
+                                    <tr>
+                                        <td>
+                                            <select name="fertilizer_name[]" class="form-control fertilizer-select" style="width: 100%;" readonly disabled>
+                                                <option value="{{ $item->id_master_fertilizer }}">
+                                                    {{ $item->MasterFertilizer->name }}</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="fertilizer_qty_owned[]"
+                                                class="form-control my-input-decimal" value="{{ $item->quantity_owned }}" readonly disabled>
+                                        </td>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+
+                    </div>
+
+
             </div>
         </div>
 

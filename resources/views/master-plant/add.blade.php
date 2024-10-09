@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Tambah Data Petani')
+@section('title', 'Tambah Data Tanaman')
 
 @section('adminlte_css_pre')
     <link rel="icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon">
@@ -14,7 +14,7 @@
 @endsection
 
 @section('content_header')
-    <h1>Tambah Data Petani</h1>
+    <h1>Tambah Data Tanaman</h1>
 @stop
 
 @section('content')
@@ -29,7 +29,7 @@
         </div>
     @endif
     <div class="container-fluid" style="margin-top:20px; text-transform: uppercase;">
-        <form method="POST">
+        <form method="POST" autocomplete="off">
             <div class="card">
                 <div class="card-body">
                     @csrf

@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Info Pupuk')
 
 @section('adminlte_css_pre')
     <link rel="icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon">
@@ -14,7 +14,7 @@
 @endsection
 
 @section('content_header')
-    &nbsp;
+    <h1>Info Pupuk</h1>
 @stop
 
 @section('content')
@@ -31,16 +31,17 @@
     <div class="container-fluid" style="margin-top:20px; text-transform: uppercase;">
         <div class="card">
             <div class="card-body">
-                <div class="jumbotron">
-                    <h1 class="display-4">PUPUKKU</h1>
-                    <hr class="my-4">
-                    <p class="lead">PUPUKKU Adalah Sistem Informasi Distribusi dan Monitoring Pupuk Mayarakat</p>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <div class="form-group">
+                            <label class="required" for="name">Nama Pupuk</label>
+                            <input type="text" name="name" id="name" class="form-control my-input" readonly
+                                placeholder="Nama Pupuk" value="{{ $data->name }}">
+                        </div>
+                    </div>
                 </div>
-
-
             </div>
         </div>
-    </div>
 
 
 @stop
@@ -48,4 +49,12 @@
 @section('plugins.Datatables', true)
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            $(".my-input").on('input', function() {
+                $(this).val($(this).val().toUpperCase());
+            })
+        });
+    </script>
 @stop

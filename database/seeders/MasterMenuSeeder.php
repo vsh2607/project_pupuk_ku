@@ -52,8 +52,17 @@ class MasterMenuSeeder extends Seeder
             'priority' => 0,
             'icon' => ''
         ]);
+        MasterMenu::create([
+            'level' => 2,
+            'title' => ' Master Pupuk',
+            'code' => 'master-fertilizer',
+            'is_dropdown' => 0,
+            'is_hidden' => 0,
+            'priority' => 0,
+            'icon' => ''
+        ]);
 
-        //Id : 5
+        //Id : 6
         MasterMenu::create([
             'level' => 0,
             'title' => ' Module Manajemen',
@@ -65,7 +74,17 @@ class MasterMenuSeeder extends Seeder
         ]);
 
         MasterMenu::create([
-            'level' => 5,
+            'level' => 6,
+            'title' => ' Perencanaan Tanam',
+            'code' => 'planting-plan',
+            'is_dropdown' => 0,
+            'is_hidden' => 0,
+            'priority' => 0,
+            'icon' => ''
+        ]);
+
+        MasterMenu::create([
+            'level' => 6,
             'title' => ' Distribusi Pupuk',
             'code' => 'fertilizer-distribution',
             'is_dropdown' => 0,
@@ -74,7 +93,7 @@ class MasterMenuSeeder extends Seeder
             'icon' => ''
         ]);
         MasterMenu::create([
-            'level' => 5,
+            'level' => 6,
             'title' => ' Periode Distribusi Pupuk',
             'code' => 'fertilizer-distribution-periode',
             'is_dropdown' => 0,
@@ -82,6 +101,9 @@ class MasterMenuSeeder extends Seeder
             'priority' => 0,
             'icon' => ''
         ]);
+
+
+
 
 
     }

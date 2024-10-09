@@ -22,7 +22,7 @@
         <div class="card">
             <div class="card-body login-card-body">
                 <p class="login-box-msg">Silahkan Login Terlebih Dahulu</p>
-                <form method="post">
+                <form method="post" autocomplete="off">
                     {{ csrf_field() }}
                     <div class="input-group mb-3">
                         <input type="text" name="username"

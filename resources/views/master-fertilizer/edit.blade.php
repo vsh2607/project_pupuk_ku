@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Info Tanaman')
+@section('title', 'Edit Data Pupuk')
 
 @section('adminlte_css_pre')
     <link rel="icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon">
@@ -14,7 +14,7 @@
 @endsection
 
 @section('content_header')
-    <h1>Info Tanaman</h1>
+    <h1>Edit Data Pupuk</h1>
 @stop
 
 @section('content')
@@ -29,19 +29,30 @@
         </div>
     @endif
     <div class="container-fluid" style="margin-top:20px; text-transform: uppercase;">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12">
-                        <div class="form-group">
-                            <label class="required" for="name">Nama Tanaman</label>
-                            <input type="text" name="name" id="name" class="form-control my-input" readonly
-                                placeholder="Nama Tanaman" value="{{ $data->name }}">
+        <form method="POST">
+            <div class="card">
+                <div class="card-body">
+                    @csrf
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label class="required" for="name">Nama Pupuk</label>
+                                <input type="text" required name="name" id="name" class="form-control my-input"
+                                    placeholder="Nama Pupuk" value="{{ $data->name }}">
+                            </div>
                         </div>
+
                     </div>
+
+                </div>
+
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">SUBMIT</button>
                 </div>
             </div>
-        </div>
+
+        </form>
+    </div>
 
 
 @stop

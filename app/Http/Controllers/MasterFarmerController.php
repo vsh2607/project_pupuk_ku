@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterFarmer;
+use App\Models\MasterFarmerFertilizer;
 use App\Models\MasterFarmerPlant;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -31,12 +32,6 @@ class MasterFarmerController extends Controller
             ->editColumn('land_area', function ($model) {
                 return $model->land_area . ' m<sup>2</sup>';
             })
-            ->editColumn('fertilizer_quantity_owned', function ($model) {
-                return $model->fertilizer_quantity_owned . ' KG';
-            })
-            ->editColumn('fertilizer_quantity_needed', function ($model) {
-                return $model->fertilizer_quantity_needed . ' KG';
-            })
             ->editColumn('land_type', function ($model) {
                 return $model->land_type == "OWNED" ? "Punya Sendiri" : "Garap Orang Lain";
             })
@@ -51,14 +46,14 @@ class MasterFarmerController extends Controller
 
     public function addData(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
             'name' => 'required',
             'land_type' => 'required',
             'handphone_number' => 'required',
             'land_area' => 'required',
             'land_location' => 'required',
-            'fertilizer_quantity_owned' => 'required',
-            'fertilizer_quantity_needed' => 'required',
             'plant_type' => 'required'
         ]);
 
@@ -70,9 +65,7 @@ class MasterFarmerController extends Controller
                     'land_type' => $request->land_type,
                     'handphone_number' => $request->handphone_number,
                     'land_area' => $request->land_area,
-                    'land_location' => $request->land_location,
-                    'fertilizer_quantity_owned' => $request->fertilizer_quantity_owned,
-                    'fertilizer_quantity_needed' => $request->fertilizer_quantity_needed,
+                    'land_location' => $request->land_location
                 ]
             );
             foreach ($request->plant_type as  $plant_type) {
@@ -82,6 +75,16 @@ class MasterFarmerController extends Controller
                         'id_master_plant' => $plant_type
                     ]
                 );
+            }
+
+            foreach($request->fertilizer_name as $key => $fertilizer){
+                MasterFarmerFertilizer::updateOrCreate([
+                    'id_master_farmer' => $masterFarmer->id,
+                    'id_master_fertilizer' => $fertilizer,
+                    'quantity_owned' => (float) $request->fertilizer_qty_owned[$key],
+                    // 'quantity_needed' => (float) $request->fertilizer_qty_needed[$key]
+                ]);
+
             }
 
             DB::commit();
@@ -96,8 +99,9 @@ class MasterFarmerController extends Controller
     {
         $data = MasterFarmer::find($id);
         $plants = MasterFarmerPlant::with(['plant'])->where('id_master_farmer', $id)->get();
+        $fertilizers = MasterFarmerFertilizer::with(['MasterFertilizer'])->where('id_master_farmer', $id)->get();
         $selectedPlants = $plants->pluck('plant.id')->toArray();
-        return view('master-farmer.edit', ['data' => $data, 'plants' => $plants, 'selectedPlants' => $selectedPlants]);
+        return view('master-farmer.edit', ['data' => $data, 'plants' => $plants, 'selectedPlants' => $selectedPlants, 'fertilizers' => $fertilizers]);
     }
 
     public function updateData(Request $request, $id)
@@ -108,8 +112,6 @@ class MasterFarmerController extends Controller
             'handphone_number' => 'required',
             'land_area' => 'required',
             'land_location' => 'required',
-            'fertilizer_quantity_owned' => 'required',
-            'fertilizer_quantity_needed' => 'required',
             'plant_type' => 'required'
         ]);
 
@@ -124,8 +126,6 @@ class MasterFarmerController extends Controller
                     'handphone_number' => $request->handphone_number,
                     'land_area' => $request->land_area,
                     'land_location' => $request->land_location,
-                    'fertilizer_quantity_owned' => $request->fertilizer_quantity_owned,
-                    'fertilizer_quantity_needed' => $request->fertilizer_quantity_needed,
                 ]);
 
 
@@ -136,6 +136,21 @@ class MasterFarmerController extends Controller
                             'id_master_plant' => $plant_type
                         ]
                     );
+                }
+
+                $farmerFertilizers = MasterFarmerFertilizer::where('id_master_farmer', $id)->get();
+                foreach($farmerFertilizers as $farmerFertilizer){
+                    $farmerFertilizer->delete();
+                }
+
+                foreach($request->fertilizer_name as $key => $fertilizer){
+                    MasterFarmerFertilizer::updateOrCreate([
+                        'id_master_farmer' => $data->id,
+                        'id_master_fertilizer' => $fertilizer,
+                        'quantity_owned' => (float) $request->fertilizer_qty_owned[$key],
+                        // 'quantity_needed' => (float) $request->fertilizer_qty_needed[$key]
+                    ]);
+
                 }
             }
             DB::commit();
@@ -150,8 +165,9 @@ class MasterFarmerController extends Controller
     {
         $data = MasterFarmer::find($id);
         $plants = MasterFarmerPlant::with(['plant'])->where('id_master_farmer', $id)->get();
+        $fertilizers = MasterFarmerFertilizer::with(['MasterFertilizer'])->where('id_master_farmer', $id)->get();
         $selectedPlants = $plants->pluck('plant.id')->toArray();
-        return view('master-farmer.info', ['data' => $data, 'plants' => $plants, 'selectedPlants' => $selectedPlants]);
+        return view('master-farmer.info', ['data' => $data, 'plants' => $plants, 'selectedPlants' => $selectedPlants, 'fertilizers' => $fertilizers]);
     }
 
 
@@ -168,7 +184,7 @@ class MasterFarmerController extends Controller
             ->havingRaw('fqo - total_lender - fqn > 0')
             ->get();
 
-     
+
         return response()->json($data);
     }
 

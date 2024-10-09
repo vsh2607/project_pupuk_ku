@@ -45,8 +45,6 @@
                                 <th>NO. Telp</th>
                                 <th>Luas Lahan</th>
                                 <th>Tipe Tanah</th>
-                                <th>Jumlah Pupuk (Dipunya)</th>
-                                <th>Jumlah Pupuk (Dibutuhkan)</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -184,14 +182,6 @@
                     {
                         data: 'land_type',
                         name: 'land_type'
-                    },
-                    {
-                        data: 'fertilizer_quantity_owned',
-                        name: 'fertilizer_quantity_owned'
-                    },
-                    {
-                        data: 'fertilizer_quantity_needed',
-                        name: 'fertilizer_quantity_needed'
                     },
                     {
                         data: 'action',

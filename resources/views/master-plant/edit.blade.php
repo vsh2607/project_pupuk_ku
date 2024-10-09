@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Tambah Data Petani')
+@section('title', 'Edit Data Tanaman')
 
 @section('adminlte_css_pre')
     <link rel="icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon">
@@ -14,7 +14,7 @@
 @endsection
 
 @section('content_header')
-    <h1>Tambah Data Petani</h1>
+    <h1>Edit Data Tanaman</h1>
 @stop
 
 @section('content')

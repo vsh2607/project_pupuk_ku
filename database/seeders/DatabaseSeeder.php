@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 MasterPlantSeeder::class,
                 MasterFarmerPlantSeeder::class,
                 MasterFarmerSeeder::class,
+                MasterFertilizerSeeder::class,
             ]
         );
     }
