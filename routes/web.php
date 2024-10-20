@@ -7,6 +7,7 @@ use App\Http\Controllers\MasterPlantController;
 use App\Http\Controllers\MasterFarmerController;
 use App\Http\Controllers\MasterFertilizerController;
 use App\Http\Controllers\ModuleFertilizerDistributionController;
+use App\Http\Controllers\ModulePlantingPlanController;
 
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate']);
@@ -28,6 +29,8 @@ Route::group(['prefix' => '/master-data', 'middleware' => ['auth']], function ()
         Route::post('{id}/edit', [MasterFarmerController::class, 'updateData']);
         Route::get('/add', [MasterFarmerController::class, 'addForm']);
         Route::post('/add', [MasterFarmerController::class, 'addData']);
+
+        Route::get("/get-fertilizer-qty-owned", [MasterFarmerController::class, 'getFertilizerOwned']);
     });
 
 
@@ -67,6 +70,13 @@ Route::group(['prefix' => '/module-management', 'middleware' => ['auth']], funct
 
     });
 
+    Route::prefix('/planting-plan')->group(function(){
+        Route::get('/', [ModulePlantingPlanController::class, 'index']);
+        Route::get('/list-data', [ModulePlantingPlanController::class, 'listData']);
+        Route::get('/add', [ModulePlantingPlanController::class, 'addForm']);
+        Route::post('/add', [ModulePlantingPlanController::class, 'addData']);
+    });
+
 
     Route::prefix('/fertilizer-distribution-periode')->group(function(){
         Route::get('/', [ModuleFertilizerDistributionController::class, 'indexPeriode']);
@@ -84,5 +94,9 @@ Route::group(['prefix' => '/resources', 'middleware' => ['auth']], function () {
     Route::get('/list-lender-candidates',[MasterFarmerController::class, 'listLenderCandidates']);
     Route::get('/list-borrower-candidates',[MasterFarmerController::class, 'listBorrowerCandidates']);
     Route::post('/list-lender-lended', [ModuleFertilizerDistributionController::class, 'listLenderLended']); //list pemberi peminjaman
+
+
+    Route::get("/list-all-farmer", [MasterFarmerController::class, 'listAllDataFarmer']);
+    Route::get("{id}/get-farmer-fertilizer-plant-data", [MasterFarmerController::class, 'getFarmerFertilizerPlantData']);
 
 });

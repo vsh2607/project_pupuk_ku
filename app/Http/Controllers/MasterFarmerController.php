@@ -77,14 +77,13 @@ class MasterFarmerController extends Controller
                 );
             }
 
-            foreach($request->fertilizer_name as $key => $fertilizer){
+            foreach ($request->fertilizer_name as $key => $fertilizer) {
                 MasterFarmerFertilizer::updateOrCreate([
                     'id_master_farmer' => $masterFarmer->id,
                     'id_master_fertilizer' => $fertilizer,
                     'quantity_owned' => (float) $request->fertilizer_qty_owned[$key],
                     // 'quantity_needed' => (float) $request->fertilizer_qty_needed[$key]
                 ]);
-
             }
 
             DB::commit();
@@ -139,18 +138,17 @@ class MasterFarmerController extends Controller
                 }
 
                 $farmerFertilizers = MasterFarmerFertilizer::where('id_master_farmer', $id)->get();
-                foreach($farmerFertilizers as $farmerFertilizer){
+                foreach ($farmerFertilizers as $farmerFertilizer) {
                     $farmerFertilizer->delete();
                 }
 
-                foreach($request->fertilizer_name as $key => $fertilizer){
+                foreach ($request->fertilizer_name as $key => $fertilizer) {
                     MasterFarmerFertilizer::updateOrCreate([
                         'id_master_farmer' => $data->id,
                         'id_master_fertilizer' => $fertilizer,
                         'quantity_owned' => (float) $request->fertilizer_qty_owned[$key],
                         // 'quantity_needed' => (float) $request->fertilizer_qty_needed[$key]
                     ]);
-
                 }
             }
             DB::commit();
@@ -188,6 +186,31 @@ class MasterFarmerController extends Controller
         return response()->json($data);
     }
 
+    public function listAllDataFarmer(Request $request)
+    {
+        $data = $request->all();
+        $search_word = !empty($data) ? $data["name"] : '';
+        $data = MasterFarmer::where('name', 'LIKE', '%' . $search_word . '%');
+        $data = $data->get(['id', 'name']);
+        return response()->json($data);
+    }
+
+
+    public function getFarmerFertilizerPlantData($id)
+    {
+        $data = MasterFarmer::with(['farmerPlants', 'farmerPlants.plant', 'MasterFarmerFertilizer', 'MasterFarmerFertilizer.MasterFertilizer', 'THFarmerPlanned' => function ($query) {
+            $query->where('status', 0);
+        }])
+            ->where('id', $id)
+            ->first();
+
+        if ($data->THFarmerPlanned) {
+            $data->total_land_planned = $data->THFarmerPlanned->sum('land_area');
+        }
+
+        return response()->json($data);
+    }
+
 
     public function listBorrowerCandidates(Request $request)
     {
@@ -202,6 +225,10 @@ class MasterFarmerController extends Controller
             ->get();
 
 
+        return response()->json($data);
+    }
+    public function getFertilizerOwned(Request $request){
+        $data = MasterFarmerFertilizer::where('id_master_farmer', $request->farmer_id)->where('id_master_fertilizer', $request->fertilizer_id)->select('quantity_owned')->first();
         return response()->json($data);
     }
 }
