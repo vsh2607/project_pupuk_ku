@@ -57,62 +57,93 @@
 
     </div>
 
+    <div class="modal" tabindex="-1" id="deleteModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah anda yakin ingin menghapus data berikut ?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <form method="POST">
+                        @csrf
+                        <input type="hidden" id="id_th_farmer_planned" name="id_th_farmer_planned">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </form>
+
+                </div>
+            </div>
 
 
-@stop
 
-@section('plugins.Datatables', true)
-@section('js')
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="/leafletjs/leaflet.js"></script>
-    <script>
-        $(document).ready(function() {
+        @stop
 
-            $('#list_table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ url('/module-management/planting-plan/list-data') }}",
-                },
-                columnDefs: [{
-                    "targets": [0],
-                    "visible": true,
-                    "searchable": false,
-                    "orderable": false,
-                }, ],
-                columns: [{
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return meta.row + 1;
-                        }
-                    },
-                    {
-                        data: 'farmer_name',
-                        name: 'farmer_name'
-                    },
-                    {
-                        data: 'planned_date',
-                        name: 'planned_date'
-                    },
-                    {
-                        data : 'land_area',
-                        name : 'land_area'
-                    },
-                    {
-                        data: 'planned_plant',
-                        name: 'planned_plant'
-                    },
-                    {
-                        data: 'fertilizer_needs',
-                        name: 'fertilizer_needs'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action'
-                    }
-                ]
+        @section('plugins.Datatables', true)
+        @section('js')
+            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+            <script src="/leafletjs/leaflet.js"></script>
+            <script>
 
-            });
-        })
-    </script>
-@stop
+                $(document).on('click', '.btn-delete', function() {
+                    let id = $(this).data('id');
+                    $('#id_th_farmer_planned').val(id);
+
+
+                });
+
+
+                $(document).ready(function() {
+
+                    $('#list_table').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: "{{ url('/module-management/planting-plan/list-data') }}",
+                        },
+                        columnDefs: [{
+                            "targets": [0],
+                            "visible": true,
+                            "searchable": false,
+                            "orderable": false,
+                        }, ],
+                        columns: [{
+                                data: null,
+                                render: function(data, type, row, meta) {
+                                    return meta.row + 1;
+                                }
+                            },
+                            {
+                                data: 'farmer_name',
+                                name: 'farmer_name'
+                            },
+                            {
+                                data: 'planned_date',
+                                name: 'planned_date'
+                            },
+                            {
+                                data: 'land_area',
+                                name: 'land_area'
+                            },
+                            {
+                                data: 'planned_plant',
+                                name: 'planned_plant'
+                            },
+                            {
+                                data: 'fertilizer_needs',
+                                name: 'fertilizer_needs'
+                            },
+                            {
+                                data: 'action',
+                                name: 'action'
+                            }
+                        ]
+
+                    });
+                })
+            </script>
+        @stop

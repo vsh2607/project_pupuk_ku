@@ -15,7 +15,8 @@ class TDFarmerPlanned extends Model
     protected $fillable = [
         'id_th_farmer_planned',
         'id_master_fertilizer',
-        'quantity_planned'
+        'quantity_planned',
+        'quantity_owned'
     ];
 
     public function MasterFertilizer(){

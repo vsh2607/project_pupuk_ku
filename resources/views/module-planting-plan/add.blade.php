@@ -120,25 +120,7 @@
             </div>
 
 
-            <div id="myModal" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">PETA LOKASI</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div id="map" style="width: 100%; height:400px;"></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger btn-reset-map">Reset</button>
-                            <button type="button" class="btn btn-success btn-save-map">Simpan</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            
 
         </form>
     </div>
@@ -196,7 +178,7 @@
                                         <option value="${fertilizer.id_master_fertilizer}">${fertilizer.master_fertilizer.name}</option>
                                     </select>
                                 </td>
-                                <td><input type="text" name="fertilizer_qty_owned[]" id="fertilizer_qty_owned" class="form-control my-input-decimal" value="${fertilizer.quantity_owned}" disabled readonly></td>
+                                <td><input type="text" name="fertilizer_qty_owned[]" id="fertilizer_qty_owned" class="form-control my-input-decimal" value="${fertilizer.quantity_owned}"  readonly></td>
                                 <td><input type="text" name="fertilizer_qty_planned[]" id="fertilizer_qty_planned" class="form-control my-input-decimal" placeholder="Masukkan Qty Rencana" required></td>
                                 <td><button class="btn btn-danger" id="btnDeleteRow"><i class="fas fa-trash"></i></button></td>
                             </tr>
@@ -288,7 +270,7 @@
                              <select name="fertilizer_name[]" class="form-control fertilizer-select" style="width=100%;" required>
                             </select>
                         </td>
-                        <td><input type="text" name="fertilizer_qty_owned[]" id="fertilizer_qty_owned" class="form-control my-input-decimal" value="0" readonly disabled></td>
+                        <td><input type="text" name="fertilizer_qty_owned[]" id="fertilizer_qty_owned" class="form-control my-input-decimal" value="0" readonly ></td>
                         <td><input type="text" name="fertilizer_qty_planned[]" id="fertilizer_qty_planned" class="form-control my-input-decimal" placeholder="Masukkan Qty Rencana" required></td>
 
                         <td><button class="btn btn-danger" id="btnDeleteRow"><i class="fas fa-trash"></i></button></td>

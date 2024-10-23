@@ -75,6 +75,9 @@ Route::group(['prefix' => '/module-management', 'middleware' => ['auth']], funct
         Route::get('/list-data', [ModulePlantingPlanController::class, 'listData']);
         Route::get('/add', [ModulePlantingPlanController::class, 'addForm']);
         Route::post('/add', [ModulePlantingPlanController::class, 'addData']);
+        Route::get('{id}/edit', [ModulePlantingPlanController::class, 'editForm']);
+        Route::post('{id}/edit', [ModulePlantingPlanController::class, 'updateData']);
+        Route::post('/', [ModulePlantingPlanController::class, 'deleteData']);
     });
 
 
