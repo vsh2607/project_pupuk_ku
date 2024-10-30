@@ -11,8 +11,14 @@
             content: '*';
             color: red;
         }
+
+        .center {
+            text-align: center;
+        }
     </style>
 @endsection
+
+
 
 @section('content_header')
     <h1>Module Distribusi Pupuk</h1>
@@ -31,9 +37,9 @@
     <div class="container-fluid" style="margin-top:20px; text-transform: uppercase;">
         <div class="card">
             <div class="card-header">
-                <button class="btn btn-info btn-md btn-show-map float-right" style="margin-right: 10px" type="button"><i
+                {{-- <button class="btn btn-info btn-md btn-show-map float-right" style="margin-right: 10px" type="button"><i
                         class="fas fa-map"></i>
-                    Tampilkan Peta</button>
+                    Tampilkan Peta</button> --}}
             </div>
 
             <div class="card-body">
@@ -45,84 +51,31 @@
                                 <th>Nama Petani</th>
                                 <th>Luas Lahan</th>
                                 <th>Jenis Lahan</th>
-                                <th>Jenis Tanaman</th>
-                                <th>Jumlah Pupuk (Dipunya)</th>
-                                <th>Jumlah Pupuk (Dibutuhkan)</th>
-                                <th>Jumlah Pupuk (Dipinjamkan)</th>
-                                <th>Jumlah Pupuk (Meminjam)</th>
-                                <th>Sisa Pupuk</th>
-                                <th>Status</th>
-                                <th>Status Pinjaman</th>
-                                {{-- <th>Action</th> --}}
+                                <th>Jumlah Pupuk Kepemilikan</th>
+                                <th>Info Rencana Tanam</th>
+                                <th>Info Pinjaman</th>
                             </tr>
                         </thead>
                     </table>
                 </div>
             </div>
+        </div>
 
-            <div id="myModal" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">PETA DISTRIBUSI</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div id="map" style="width: 100%; height:400px;"></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                        </div>
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">PETA DISTRIBUSI</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="map" style="width: 100%; height:400px;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                     </div>
                 </div>
             </div>
-
-
-            <div class="modal fade" role="dialog" id="borrowModal">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-
-                        <div class="modal-header">
-                            <h4 class="modal-title">DAFTAR PINJAMAN PUPUK</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-header">
-                            <div class="alert alert-success d-none" role="alert" id="successAlert">
-
-                            </div>
-                            <div class="alert alert-danger d-none" role="alert" id="errorAlert">
-
-                            </div>
-                        </div>
-                        <div class="modal-body">
-                            <div class="table-responsive" style="overflow-x: auto;">
-                                <table class="table" id="myPinjamanTable" style="width: 100%;">
-                                    <table class="table" id="myPinjamanTable" style="width: 100%;">
-                                        <thead>
-                                            <tr>
-                                                <th>Nama Peminjam</th>
-                                                <th>Nama Pemberi</th>
-                                                <th>Sisa Pinjaman</th>
-                                                <th>Tanggal Pinjaman</th>
-                                                <th>Total Pengembalian</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                            </div>
-                            </table>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                onclick="window.location.reload()">Tutup</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
         </div>
 
 
@@ -130,15 +83,389 @@
     </div>
 
 
+    <div class="modal fade" role="dialog" id="hasPlantingPlanModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Daftar Rencana Tanam</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="table-responsive" style="overflow-x: auto;">
+                        <table class="table" id="hasPlantingTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th class="center">Kode Rencana</th>
+                                    <th class="center">Tanggal Perencanaan</th>
+                                    <th class="center">Jumlah Lahan Recana</th>
+                                    <th class="center">Jumlah Kepemilikan Pupuk</th>
+                                    <th class="center">Jumlah Kebutuhan Pupuk</th>
+                                    <th class="center">Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" role="dialog" id="hasBorrowedModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Daftar Pinjaman</h5>
+                    <button type="button" class="close" id="hasBorrowedBtnModalClose" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="table-responsive" style="overflow-x: auto;">
+                        <table class="table" id="hasBorrowedTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th class="center">Kode Rencana</th>
+                                    <th class="center">Nama Pemberi</th>
+                                    <th class="center">Pupuk</th>
+                                    <th class="center">Sisa Pinjaman</th>
+                                    <th class="center">Tanggal Pinjaman</th>
+                                    <th class="center">Jumlah Pengembalian</th>
+                                    <th class="center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
 
 @stop
 
+@section('plugins.Sweetalert2', true)
 @section('plugins.Datatables', true)
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="/leafletjs/leaflet.js"></script>
 
     <script>
+        $(document).ready(function() {
+
+
+            $(document).on("click", "#hasBorrowedBtnModal", function() {
+                let farmerBorrowerId = $(this).data("id");
+                $("#hasBorrowedModal").modal("show");
+
+                $("#hasBorrowedTable").DataTable().clear().destroy();
+
+                $("#hasBorrowedTable").DataTable({
+                    proccessing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ url('resources/list-farmer-borrower') }}",
+                        data: {
+                            farmerBorrowerId: farmerBorrowerId
+                        },
+                        dataSrc: function(json) {
+                            if (json.data.length === 0) {
+                                window.location.reload();
+                            }
+                            return json.data;
+                        }
+                    },
+                    columnDefs: [{
+                        "targets": [0],
+                        "visible": true,
+                        "searchable": false,
+                        "orderable": false,
+                    }, ],
+                    columns: [{
+                            data: null,
+                            render: function(data, type, row, meta) {
+                                return meta.row + 1;
+                            }
+                        },
+                        {
+                            data: 'code',
+                            name: 'code'
+                        },
+                        {
+                            data: 'lender_name',
+                            name: 'lender_name'
+                        },
+                        {
+                            data: 'fertilizer_name',
+                            name: 'fertilizer_name'
+                        },
+                        {
+                            data: 'loan_remainder',
+                            name: 'loan_remainder',
+                        },
+                        {
+                            data: 'loan_date',
+                            name: 'loan_date',
+                        },
+                        {
+                            data: 'qty_return',
+                            name: 'qty_return',
+                        },
+                        {
+                            data: 'action',
+                            name: 'action'
+                        }
+
+                    ]
+
+                });
+
+
+            });
+
+            $(document).on("click", "#hasPlantingPlanBtnModal", function() {
+                let farmerBorrowerId = $(this).data("id");
+                $("#hasPlantingPlanModal").modal("show");
+
+                $("#hasPlantingTable").DataTable().clear().destroy();
+
+                $("#hasPlantingTable").DataTable({
+                    proccessing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ url('resources/list-planting-plan') }}",
+                        data: {
+                            farmerBorrowerId: farmerBorrowerId
+                        }
+                    },
+                    columnDefs: [{
+                        "targets": [0],
+                        "visible": true,
+                        "searchable": false,
+                        "orderable": false,
+                    }, ],
+                    columns: [{
+                            data: null,
+                            render: function(data, type, row, meta) {
+                                return meta.row + 1;
+                            }
+                        },
+                        {
+                            data: 'code',
+                            name: 'code'
+                        },
+                        {
+                            data: 'planned_date',
+                            name: 'planned_date'
+                        },
+                        {
+                            data: 'land_area',
+                            name: 'land_area'
+                        },
+                        {
+                            data: 'fertilizers_owned',
+                            name: 'fertilizers_owned',
+                        },
+                        {
+                            data: 'fertilizers_planned',
+                            name: 'fertilizers_planned',
+                        },
+                        {
+                            data: 'info',
+                            name: 'info'
+                        }
+
+
+
+                    ]
+
+
+
+                })
+
+                // $.ajax({
+                //     type: 'GET',
+                //     url: "{{ url('resources/list-planting-plan') }}",
+                //     data: {
+                //         farmerBorrowerId: farmerBorrowerId
+                //     },
+                //     success: function(response) {
+                //         console.log(response);
+                //         let tr = '';
+                //         response.forEach(function(e) {
+                //             tr += '<tr>';
+                //             tr += '<td>' + e.code + '</td>';
+                //             tr += '<td class="center">' + e.planned_date + '</td>';
+                //             tr += '<td class="center">' + e.land_area + ' m<sup>2</sup></td>';
+                //             tr += '<td class="" style="width:40%">' +
+                //                 '<ul>';
+                //             e.master_farmer.master_farmer_fertilizer.forEach(function(fertilizer) {
+                //                 tr += '<li style="white-space: nowrap;">' +
+                //                     fertilizer.master_fertilizer.name + ': ' +
+                //                     fertilizer.quantity_owned + ' KG </li>';
+                //             });
+                //             tr += '</ul>'; +
+                //             '</td>';
+                //             tr += '<td class="" style="width:40%">' +
+                //                 '<ul>';
+                //             e.t_d_farmer_planned.forEach(function(fertilizer) {
+                //                 tr += '<li style="white-space: nowrap;">' +
+                //                     fertilizer.master_fertilizer.name + ': ' +
+                //                     fertilizer.quantity_planned + ' KG </li>';
+                //             });
+                //             tr += '</ul>'; +
+                //             '</td>';
+                //             tr += '<td class="center"></td>';
+                //             tr += '</tr>';
+                //         });
+
+                //         $("#hasPlantingTable tbody").append(tr);
+
+
+                //     },
+                //     error: function(err) {
+                //         console.log(err);
+                //     }
+                // })
+
+            });
+
+            $('#list_table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ url('/module-management/fertilizer-distribution/list-data') }}",
+                },
+                columnDefs: [{
+                    "targets": [0],
+                    "visible": true,
+                    "searchable": false,
+                    "orderable": false,
+                }, ],
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + 1;
+                        },
+                    },
+
+                    {
+                        data: 'farmer_name',
+                        name: 'farmer_name'
+                    },
+                    {
+                        data: 'land_area',
+                        name: 'land_area'
+                    },
+                    {
+                        data: 'land_type',
+                        name: 'land_type'
+                    },
+                    {
+                        data: 'fertilizer_owned',
+                        name: 'fertilizer_owned'
+                    },
+                    {
+                        data: 'planting_plan_status',
+                        name: 'planting_plan_status'
+                    },
+                    {
+                        data: 'borrow_status',
+                        name: 'borrow_status'
+                    }
+
+                ]
+
+            });
+
+            $(document).on("click", "#returnLoanBtn", function() {
+                let distributionId = $(this).data("id");
+                let qty_return = parseFloat($(this).closest("tr").find("input[name='qty_return']").val());
+                let max = parseFloat($(this).closest("tr").find("input[name='qty_return']").attr("max"));
+
+                if (qty_return < 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Total Tidak Boleh Kurang dari 0',
+                        timer: 2000,
+                        showConfirmButton: false,
+                    })
+                    return ;
+                } else if (qty_return > max) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Total Tidak Boleh Lebih dari Pinjaman',
+                        timer: 2000,
+                        showConfirmButton: false,
+                    })
+                    return ;
+                } else if (qty_return == 0 || qty_return === '') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Total Tidak Boleh Kosong',
+                        timer: 2000,
+                        showConfirmButton: false,
+                    })
+                    return ;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url('module-management/fertilizer-distribution/update-loan') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        distributionId: distributionId,
+                        qty_return: qty_return
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 2000,
+                            showConfirmButton: false,
+                        })
+
+                        $("#hasBorrowedTable").DataTable().ajax.reload();
+                    },
+                    error: function(err) {
+                        console.log(err);
+                    }
+                })
+
+            });
+
+
+            $("#hasBorrowedBtnModalClose").click(function() {
+                window.location.reload();
+            });
+
+            $('#hasBorrowedModal').on('hidden.bs.modal', function () {
+                window.location.reload();
+            });
+
+        });
+    </script>
+
+    {{-- <script>
         $(document).ready(function() {
 
 
@@ -373,5 +700,5 @@
 
             });
         })
-    </script>
+    </script> --}}
 @stop

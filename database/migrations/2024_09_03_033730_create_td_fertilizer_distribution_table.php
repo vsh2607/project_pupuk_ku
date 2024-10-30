@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('td_fertilizer_distribution', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('id_th_fertilizer_distribution');
+            $table->bigInteger('id_th_farmer_planned');
+            $table->bigInteger("id_master_fertilizer");
             $table->bigInteger('id_farmer_borrower');
             $table->bigInteger('id_farmer_lender');
-            $table->decimal('total_loan', 8, 2);
+            $table->decimal('total_loan', 20, 2);
             $table->timestamps();
             $table->softDeletes();
         });

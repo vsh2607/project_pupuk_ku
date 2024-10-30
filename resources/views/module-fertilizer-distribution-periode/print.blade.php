@@ -48,6 +48,7 @@
                 <th style="width: 5%;">NO</th>
                 <th style="text-align: center">Nama Peminjam</th>
                 <th style="text-align: center">Nama Pemberi</th>
+                <th style="text-align: center">Pupuk</th>
                 <th style="width: 5%; text-align:center;">Total Pinjaman</th>
                 <th style="text-align: center">TTD Peminjam</th>
                 <th style="text-align: center">TTD Pemberi</th>
@@ -59,6 +60,7 @@
                     <td>{{ ++$key }}</td>
                     <td>{{ $item->farmerBorrower->name }}</td>
                     <td>{{ $item->farmerLender->name }}</td>
+                    <td>{{ $item->MasterFertilizer->name }}</td>
                     <td style="text-align: end">{{ intval($item->total_loan) }} KG</td>
                     <td style="height: 50px;"></td>
                     <td></td>

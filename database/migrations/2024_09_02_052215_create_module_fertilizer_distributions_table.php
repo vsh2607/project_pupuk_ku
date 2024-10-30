@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('id_master_farmer_borrower'); // Id Peminjam
             $table->bigInteger('id_master_farmer_borrowed'); // Id yang dipinjam
-            $table->decimal('fertilizer_quantity_borrowed', 8, 2); // Total Dipinjam
-            $table->decimal('fertilizer_quantity_returned', 8, 2); // Total Dikembalikan
+            $table->decimal('fertilizer_quantity_borrowed', 20, 2); // Total Dipinjam
+            $table->decimal('fertilizer_quantity_returned', 20, 2); // Total Dikembalikan
             $table->integer('periode');
             $table->tinyInteger('status');
             $table->timestamps();

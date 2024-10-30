@@ -10,7 +10,12 @@
             content: '*';
             color: red;
         }
+
+        #myDistTable tr td {
+            white-space: nowrap;
+        }
     </style>
+
 @endsection
 
 @section('content_header')
@@ -41,15 +46,29 @@
                                     value="PERIODE {{ ++$totalPeriodeDistribution }}" readonly>
                             </div>
                         </div>
+
+
+                    </div>
+
+
+                    <div class="row">
                         <div class="col-lg-6 col-md-12">
                             <div class="form-group">
-                                <label class="required" for="periode_date">Tanggal</label>
-                                <input type="date" required name="periode_date" id="periode_date" class="form-control my-input"
-                                    placeholder="Masukkan Tanggal" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
-                                    min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                                <label class="required" for="periode_date_start">Tanggal Awal Rencana Tanam</label>
+                                <input type="date" required name="periode_date_start" id="periode_date_start"
+                                    class="form-control my-input" placeholder="Masukkan Tanggal Awal Rencana Tanam"
+                                    value="{{ \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d') }}">
+
                             </div>
                         </div>
-
+                        <div class="col-lg-6 col-md-12">
+                            <div class="form-group">
+                                <label class="required" for="periode_date_end">Tanggal Akhir Rencana Tanam</label>
+                                <input type="date" required name="periode_date_end" id="periode_date_end"
+                                    class="form-control my-input" placeholder="Masukkan Tanggal Akhir Rencana Tanam"
+                                    value="{{ \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d') }}">
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -61,8 +80,13 @@
                         <table style="width: 100%" class="table" id="myDistTable">
                             <thead>
                                 <tr>
+                                    <td>Kode Rencana Tanam</td>
                                     <td>Nama Petani (Peminjam)</td>
+                                    <td>Jenis Pupuk</td>
+                                    <td>Yang Dimiliki</td>
+                                    <td>Yang Dibutuhkan</td>
                                     <td>Nama Petani (Pemberi)</td>
+                                    <td>Surplus (Pemberi)</td>
                                     <td>Total Pinjaman</td>
                                     <td>Action</td>
                                 </tr>
@@ -70,12 +94,16 @@
                             <tbody></tbody>
                         </table>
                     </div>
-                    <button style="width: 100%; margin: 0 auto;" type="button"
-                        class="btn btn-success btn-add-row">TAMBAH</button>
+
+                    <br>
+                    {{-- <div>
+                        <button type="button" class="btn btn-success btn-add-row" style="width:100%">Tambah Baris</button>
+                    </div> --}}
+
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" type="submit">SUBMIT</button>
+                    <button class="btn btn-primary btn-submit" type="submit">SUBMIT</button>
                 </div>
             </div>
 
@@ -90,12 +118,127 @@
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        function lenderNameSelect2() {
+
+            $(".lender_name").select2({
+                ignore: [],
+                ajax: {
+                    url: '{{ url('resources/list-lender-candidates') }}',
+                    data: function(params) {
+                        var query = {
+                            name: params.term
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    delay: 250,
+                    processResults: function(data) {
+                        var data = $.map(data, function(obj) {
+                            obj.id = obj.id;
+                            obj.text = obj.name;
+                            obj.max = obj.max
+                            return obj;
+                        });
+                        return {
+                            results: data,
+                        };
+                    },
+                },
+                minimumInputLength: 0,
+                placeholder: 'CARI NAMA PEMBERI',
+            });
+        }
+
+
+        function getDistributionData() {
+            let startDate = $("#periode_date_start").val();
+            let endDate = $("#periode_date_end").val();
+
+            $("#myDistTable tbody").empty();
+
+            $.ajax({
+                url: '{{ url('resources/list-farmer-fertilizer-needed') }}',
+                type: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function(response) {
+                    if(response.length === 0){
+
+                        $(".btn-submit").attr('disabled', true);
+                        Swal.fire({
+                            title: 'Info',
+                            text: 'Data Distribusi Tidak Ditemukan',
+                            icon: 'info',
+                            timer: 5000,
+                            showConfirmButton: false
+                        });
+
+                        return ;
+                    }
+
+                    $(".btn-submit").attr('disabled', false);
+                    let tr = '';
+                    response.forEach(e => {
+                        console.log(response)
+                        tr += `
+                            <tr class="added-row">
+                                <td>
+                                    <input type="text" name="th_farmer_planned_code[]" id="th_farmer_planned_code" class="form-control" value="${e.code}" readonly>
+                                    <input hidden name="th_farmer_planned_id[]" value="${e.id_planning}">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" value="${e.borrower_name}" readonly>
+                                    <input type="hidden" name="borrower_id[]" id="master_farmer_id" value="${e.id_farmer_borrower}">
+                                </td>
+                                <td style="width:60%;">
+                                    <input type="text" class="form-control" value="${e.fertilizer_name}" readonly>
+                                    <input type="hidden" name="master_fertilizer_id[]" id="master_fertilizer_id" value="${e.id_fertilizer}">
+                                </td>
+                                <td>
+                                    <input type="text" name="quantity_owned[]" class="form-control" value="${e.borrower_quantity_owned} KG" readonly>
+                                </td>
+                                <td>
+                                    <input type="text" name="quantity_planned[]" class="form-control" value="${e.borrower_quantity_planned} KG" readonly>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" readonly value="${e.lender_name}">
+                                    <input type="hidden" name="lender_id[]" id="lender_id" value="${e.id_farmer_lender}">
+                                </td>
+                                <td>
+                                    <input type="text"  class="form-control" value="${e.surplus}" readonly>
+                                </td>
+                                <td style="width: 20%;"><input type="number" name="total_loan[]" class="form-control total_loan" placeholder="Total" step="0.1" max="${e.total_lent}" value="${e.total_lent}"></td>
+                                <td style="width: 10%;"><button type="button" class="btn btn-danger btn-remove-row"><i class="fas fa-trash"></i></button></td>
+                            </tr>
+                        `
+                    });
+
+                    // $(this).closest("tr").find(".lender_name").last().select2();
+                    // lenderNameSelect2();
+
+                    $("#myDistTable tbody").append(tr);
+
+                },
+                error: function(err) {
+                    console.log(err);
+                }
+            })
+        }
+
+
         $(document).ready(function() {
+
+
+            getDistributionData();
+
             function getCurrentBorrowedTotal(borrowerId) {
                 let totalBorrowed = 0;
                 $("select.borrower_name").each(function() {
                     if ($(this).val() === borrowerId) {
                         let loan = parseFloat($(this).closest('tr').find('.total_loan').val());
+                        console.log(loan, borrowerId);
                         if (!isNaN(loan)) {
                             totalBorrowed += loan;
                         }
@@ -118,6 +261,14 @@
 
                 return totalLended;
             }
+
+            $("#periode_date_start").on('change', function() {
+                getDistributionData();
+            });
+
+            $("#periode_date_end").on('change', function() {
+                getDistributionData();
+            });
 
 
 
@@ -152,36 +303,7 @@
 
             }
 
-            function lenderNameSelect2() {
-                $(".lender_name").select2({
-                    ignore: [],
-                    ajax: {
-                        url: '{{ url('resources/list-lender-candidates') }}',
-                        data: function(params) {
-                            var query = {
-                                name: params.term
-                            }
-                            return query;
-                        },
-                        dataType: 'json',
-                        delay: 250,
-                        processResults: function(data) {
-                            var data = $.map(data, function(obj) {
-                                obj.id = obj.id;
-                                obj.text = obj.name;
-                                obj.max = obj.max
-                                return obj;
-                            });
-                            return {
-                                results: data,
-                            };
-                        },
-                    },
-                    minimumInputLength: 0,
-                    placeholder: 'CARI NAMA PEMBERI',
-                });
 
-            }
 
             borrowerNameSelect2();
             lenderNameSelect2();

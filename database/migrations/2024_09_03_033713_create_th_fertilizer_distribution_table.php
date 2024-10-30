@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('th_fertilizer_distribution', function (Blueprint $table) {
             $table->id();
             $table->integer('periode');
-            $table->date('periode_date');
+            $table->date('periode_date_start');
+            $table->date('periode_date_end');
             $table->timestamps();
             $table->softDeletes();
         });

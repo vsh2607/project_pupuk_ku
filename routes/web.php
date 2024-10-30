@@ -99,7 +99,13 @@ Route::group(['prefix' => '/resources', 'middleware' => ['auth']], function () {
     Route::post('/list-lender-lended', [ModuleFertilizerDistributionController::class, 'listLenderLended']); //list pemberi peminjaman
 
 
+    Route::get("/list-planting-plan", [ModulePlantingPlanController::class, 'listPlantingPlan']);
+    Route::get("/list-farmer-borrower", [ModuleFertilizerDistributionController::class, 'listFarmerBorrower']);
+
+
     Route::get("/list-all-farmer", [MasterFarmerController::class, 'listAllDataFarmer']);
     Route::get("{id}/get-farmer-fertilizer-plant-data", [MasterFarmerController::class, 'getFarmerFertilizerPlantData']);
+
+    Route::get("/list-farmer-fertilizer-needed", [ModuleFertilizerDistributionController::class, 'getFarmerFertilizerNeeded']);
 
 });

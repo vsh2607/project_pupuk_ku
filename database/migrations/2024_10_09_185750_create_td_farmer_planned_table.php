@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('id_th_farmer_planned');
             $table->bigInteger('id_master_fertilizer');
-            $table->decimal('quantity_planned', 8, 2)->default(0);
+            $table->decimal('quantity_planned', 20, 2)->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

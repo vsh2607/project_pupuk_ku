@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('td_fertilizer_distribution', function (Blueprint $table) {
-            $table->decimal('total_return', 8, 2)->after('total_loan')->nullable()->default(0);
+            $table->decimal('total_return', 20, 2)->after('total_loan')->nullable()->default(0);
         });
     }
 

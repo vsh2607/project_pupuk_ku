@@ -42,7 +42,8 @@
                             <tr>
                                 <th>NO</th>
                                 <th>Periode</th>
-                                <th>Tanggal Periode</th>
+                                <th>Tanggal Periode Mulai</th>
+                                <th>Tanggal Periode Akhir</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -87,8 +88,12 @@
                         name: 'periode'
                     },
                     {
-                        data: 'periode_date',
-                        name: 'periode_date'
+                        data: 'periode_date_start',
+                        name: 'periode_date_start'
+                    },
+                    {
+                        data: 'periode_date_end',
+                        name: 'periode_date_end'
                     },
                     {
                         data: 'action',

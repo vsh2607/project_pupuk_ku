@@ -16,6 +16,7 @@ class THFarmerPlanned extends Model
         'id_master_farmer',
         'planned_date',
         'land_area',
+        'code',
         'status'
     ];
 

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->bigInteger('id_master_farmer');
             $table->date('planned_date');
             $table->string('land_area');
+            $table->string('code');
             $table->tinyInteger('status')->default(0); //0: on progress, 1: done
             $table->timestamps();
             $table->softDeletes();

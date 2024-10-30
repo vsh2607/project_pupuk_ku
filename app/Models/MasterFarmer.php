@@ -32,14 +32,16 @@ class MasterFarmer extends Model
         return $this->hasMany(MasterFarmerFertilizer::class, 'id_master_farmer', 'id');
     }
 
-    public function farmerBorrower(){
+    public function TDFarmerBorrowerDistribution(){
         return $this->hasMany(TDFertilizerDistribution::class, 'id_farmer_borrower', 'id');
     }
-    public function farmerLender(){
+    public function TDFarmerLenderDistribution(){
         return $this->hasMany(TDFertilizerDistribution::class, 'id_farmer_lender', 'id');
     }
 
     public function THFarmerPlanned(){
         return $this->hasMany(THFarmerPlanned::class, 'id_master_farmer', 'id');
     }
+
+
 }

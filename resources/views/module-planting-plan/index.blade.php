@@ -41,6 +41,7 @@
                         <thead>
                             <tr>
                                 <th>NO</th>
+                                <th>Kode Perencanaan</th>
                                 <th>Nama Petani</th>
                                 <th>Tanggal Rencana Tanam</th>
                                 <th>Luas Rencana Tanam</th>
@@ -116,6 +117,10 @@
                                 render: function(data, type, row, meta) {
                                     return meta.row + 1;
                                 }
+                            },
+                            {
+                                data: 'code',
+                                name: 'code'
                             },
                             {
                                 data: 'farmer_name',
