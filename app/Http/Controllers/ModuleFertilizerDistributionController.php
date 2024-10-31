@@ -325,16 +325,25 @@ class ModuleFertilizerDistributionController extends Controller
             ->get();
 
         $tracking_lent_arr = [];
+
+
+        // dd($needs);
+
+
         foreach ($needs as $key => $need) {
             $quantityNeeded = $need->quantity_planned - $need->quantity_owned;
 
+
             $farmers = MasterFarmer::leftJoin("master_farmer_fertilizers", "master_farmers.id", "=", "master_farmer_fertilizers.id_master_farmer")
                 ->leftJoin("master_fertilizers", "master_fertilizers.id", "=", "master_farmer_fertilizers.id_master_fertilizer")
-                ->leftJoin("th_farmer_planned", "master_farmers.id", "=", "th_farmer_planned.id_master_farmer")
-                ->leftJoin("td_farmer_planned", "th_farmer_planned.id", "=", "td_farmer_planned.id_th_farmer_planned")
+                ->leftJoin("th_farmer_planned", "master_farmer_fertilizers.id_master_farmer", "=", "th_farmer_planned.id_master_farmer")
+                ->leftJoin("td_farmer_planned", function ($join) {
+                    $join->on("th_farmer_planned.id", "=", "td_farmer_planned.id_th_farmer_planned");
+                    $join->on("td_farmer_planned.id_master_fertilizer", "=", "master_fertilizers.id");
+                })
                 ->leftJoin("td_fertilizer_distribution", "td_fertilizer_distribution.id_farmer_lender", "master_farmers.id")
                 ->where("master_farmers.id", "<>", $need->farmer_id)
-                ->where("master_fertilizers.id", $need->fertilizer_id)
+                ->where("master_farmer_fertilizers.id_master_fertilizer", $need->fertilizer_id)
                 ->select(
                     "master_farmers.name as farmer_name",
                     "master_farmers.id as farmer_id",
@@ -348,10 +357,10 @@ class ModuleFertilizerDistributionController extends Controller
                     DB::raw("({$quantityNeeded}) as quantity_needed_to_lend")
                 )
                 ->groupBy(
-                    "master_farmers.id",
                     "master_farmers.name",
-                    "master_fertilizers.id",
+                    "master_farmers.id",
                     "master_fertilizers.name",
+                    "master_fertilizers.id",
                     "master_farmer_fertilizers.quantity_owned",
                     "th_farmer_planned.code",
                     "td_farmer_planned.id_master_fertilizer",
@@ -371,14 +380,14 @@ class ModuleFertilizerDistributionController extends Controller
                     $totalCurrentLent > 0;
             });
 
-            // if ($surplus->isEmpty()) {
-            //     break;
-            // }
+            if ($surplus->isEmpty()) {
+                continue;
+            }
 
             foreach ($surplus as $sur) {
                 $val = $sur['surplus'] - self::getTotalCurrentLent($tracking_lent_arr, $sur['farmer_id'], $sur['fertilizer_id']);
                 if ($val <= 0) {
-                    break;
+                    continue;
                 }
                 $tracking_lent_arr[] = [
                     "id_farmer_lender" => $sur['farmer_id'],
