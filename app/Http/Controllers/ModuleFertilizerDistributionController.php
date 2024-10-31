@@ -87,49 +87,47 @@ class ModuleFertilizerDistributionController extends Controller
             "THFarmerPlanned.TDFarmerPlantPlanned.MasterPlant",
             "TDFarmerBorrowerDistribution"
         ])
-        ->get();
+            ->get();
 
 
         return DataTables::of($model)
             ->addColumn("farmer_name", function ($model) {
                 return $model->name;
             })
-            ->addColumn("borrow_status", function($model){
+            ->addColumn("borrow_status", function ($model) {
                 $bor = $model->TDFarmerBorrowerDistribution;
-                if($bor->isEmpty() || $bor->sum("total_loan") - $bor->sum("total_return") <= 0){
+                if ($bor->isEmpty() || $bor->sum("total_loan") - $bor->sum("total_return") <= 0) {
                     return "<span>Tidak Ada Pinjaman</span>";
-                }else{
+                } else {
                     return '<a href="#" class="open-dialog-has-borrow" id="hasBorrowedBtnModal" data-id="' . $model->id . '">Ada Pinjaman</a>';
                 }
             })
-            ->addColumn("planting_plan_status", function($model){
+            ->addColumn("planting_plan_status", function ($model) {
                 $plan = $model->THFarmerPlanned->filter(function ($plan) {
                     return $plan->status == 0;
                 });
 
-                if($plan->isEmpty()){
+                if ($plan->isEmpty()) {
                     return "<span>Tidak Ada Rencana Tanam</span>";
-                }else{
+                } else {
                     return '<a href="#" class="open-dialog-has-plan" id="hasPlantingPlanBtnModal" data-id="' . $model->id . '">Ada Rencana Tanam</a>';
                 }
-
             })
-            ->editColumn('land_area', function($model){
+            ->editColumn('land_area', function ($model) {
                 return $model->land_area . ' m<sup>2</sup>';
             })
             ->editColumn('land_type', function ($model) {
                 return $model->land_type == "OWNED" ? "Punya Sendiri" : "Garap Orang Lain";
             })
-            ->addColumn('fertilizer_owned', function($model){
+            ->addColumn('fertilizer_owned', function ($model) {
                 $fertilizers = $model->MasterFarmerFertilizer;
                 $fertilizerString = "<ul>";
-                foreach($fertilizers as $fertilizer){
+                foreach ($fertilizers as $fertilizer) {
                     $fertilizerString .= "<li>" . $fertilizer->MasterFertilizer->name . " : " . number_format($fertilizer->quantity_owned, 2, ',', '.') . " KG</li>";
                 }
                 $fertilizerString .= "</ul>";
 
                 return $fertilizerString;
-
             })
 
             ->rawColumns(["borrow_status", 'land_area', 'fertilizer_owned', 'land_type', 'planting_plan_status', 'borrow_status'])
@@ -313,26 +311,24 @@ class ModuleFertilizerDistributionController extends Controller
         $needs = TDFarmerPlanned::join("th_farmer_planned", "td_farmer_planned.id_th_farmer_planned", "=", "th_farmer_planned.id")
             ->join("master_fertilizers", "td_farmer_planned.id_master_fertilizer", "=", "master_fertilizers.id")
             ->join("master_farmers", "th_farmer_planned.id_master_farmer", "=", "master_farmers.id")
-            ->leftJoin("td_fertilizer_distribution", "td_fertilizer_distribution.id_farmer_borrower", "=", "master_farmers.id")
-            ->whereRaw("td_fertilizer_distribution.total_loan = td_fertilizer_distribution.total_return")
-            // ->whereNull("td_fertilizer_distribution.id")
+            // ->leftJoin("td_fertilizer_distribution", "td_fertilizer_distribution.id_farmer_borrower", "=", "master_farmers.id")
+            // ->whereRaw("td_fertilizer_distribution.total_loan = td_fertilizer_distribution.total_return")
+            // // ->whereNull("td_fertilizer_distribution.id")
             ->where("th_farmer_planned.status", 0)
             ->whereBetween("th_farmer_planned.planned_date", [$request->start_date, $request->end_date])
             ->whereRaw("td_farmer_planned.quantity_planned > td_farmer_planned.quantity_owned")
             ->select("th_farmer_planned.code", "master_farmers.id as farmer_id", "master_farmers.name as farmer_name", "master_fertilizers.id as fertilizer_id", "master_fertilizers.name as fertilizer_name", "td_farmer_planned.quantity_owned", "td_farmer_planned.quantity_planned", "th_farmer_planned.id as id_planning")
+            ->addSelect(DB::raw('(SELECT COALESCE(SUM(total_loan - total_return), 0) FROM td_fertilizer_distribution WHERE id_farmer_borrower = master_farmers.id AND id_master_fertilizer) AS total_borrowed'))
+            ->having('total_borrowed', '=', 0)
             ->orderBy("td_farmer_planned.quantity_owned", "ASC")
             ->orderBy("td_farmer_planned.quantity_planned", "ASC")
             ->get();
 
         $tracking_lent_arr = [];
-
-
-
-
         foreach ($needs as $key => $need) {
             $quantityNeeded = $need->quantity_planned - $need->quantity_owned;
 
-            $farmers  = MasterFarmer::leftJoin("master_farmer_fertilizers", "master_farmers.id", "=", "master_farmer_fertilizers.id_master_farmer")
+            $farmers = MasterFarmer::leftJoin("master_farmer_fertilizers", "master_farmers.id", "=", "master_farmer_fertilizers.id_master_farmer")
                 ->leftJoin("master_fertilizers", "master_fertilizers.id", "=", "master_farmer_fertilizers.id_master_fertilizer")
                 ->leftJoin("th_farmer_planned", "master_farmers.id", "=", "th_farmer_planned.id_master_farmer")
                 ->leftJoin("td_farmer_planned", "th_farmer_planned.id", "=", "td_farmer_planned.id_th_farmer_planned")
@@ -351,8 +347,17 @@ class ModuleFertilizerDistributionController extends Controller
                     DB::raw("(master_farmer_fertilizers.quantity_owned - COALESCE(SUM(td_farmer_planned.quantity_planned), 0) - COALESCE(SUM(td_fertilizer_distribution.total_loan - td_fertilizer_distribution.total_return), 0)) as surplus"),
                     DB::raw("({$quantityNeeded}) as quantity_needed_to_lend")
                 )
+                ->groupBy(
+                    "master_farmers.id",
+                    "master_farmers.name",
+                    "master_fertilizers.id",
+                    "master_fertilizers.name",
+                    "master_farmer_fertilizers.quantity_owned",
+                    "th_farmer_planned.code",
+                    "td_farmer_planned.id_master_fertilizer",
+                    "th_farmer_planned.id_master_farmer"
+                )
                 ->havingRaw("quantity_owned - total_quantity_planned - total_lent > 0")
-                ->groupBy("td_farmer_planned.id_master_fertilizer", "th_farmer_planned.id_master_farmer")
                 ->orderBy("surplus", "DESC")
                 ->get()
                 ->toArray();
@@ -400,34 +405,35 @@ class ModuleFertilizerDistributionController extends Controller
 
 
 
-    public function listFarmerBorrower(Request $request){
+    public function listFarmerBorrower(Request $request)
+    {
         $model = TDFertilizerDistribution::with(["THFarmerPlanned", "farmerLender", "MasterFertilizer"])
-        ->where("id_farmer_borrower", $request->farmerBorrowerId)
-        ->whereRaw("total_loan - total_return > 0");
+            ->where("id_farmer_borrower", $request->farmerBorrowerId)
+            ->whereRaw("total_loan - total_return > 0");
 
         return DataTables::of($model)
-        ->editColumn("code", function($model){
-            return $model->THFarmerPlanned->code;
-        })
-        ->addColumn("lender_name", function($model){
-            return $model->farmerLender->name;
-        })
-        ->addColumn("loan_remainder", function($model){
-            return $model->total_loan - $model->total_return . " KG";
-        })
-        ->addColumn("fertilizer_name", function($model){
-            return $model->MasterFertilizer->name;
-        })
-        ->addColumn("loan_date", function($model){
-            return $model->created_at->format("d-m-Y");
-        })
-        ->addColumn("qty_return", function($model){
-            return "<input type='number' class='form-control' name='qty_return' id='qty_return'  max='".$model->total_loan - $model->total_return."'  data-id='" . $model->id . "' value='0' min='0' />";
-        })
-        ->addColumn("action", function($model){
-            return "<button type='button' class='btn btn-primary' id='returnLoanBtn' data-id='" . $model->id . "'>Kembalikan</button>";
-        })
-        ->rawColumns(["qty_return", "action"])
-        ->toJson();
+            ->editColumn("code", function ($model) {
+                return $model->THFarmerPlanned->code;
+            })
+            ->addColumn("lender_name", function ($model) {
+                return $model->farmerLender->name;
+            })
+            ->addColumn("loan_remainder", function ($model) {
+                return $model->total_loan - $model->total_return . " KG";
+            })
+            ->addColumn("fertilizer_name", function ($model) {
+                return $model->MasterFertilizer->name;
+            })
+            ->addColumn("loan_date", function ($model) {
+                return $model->created_at->format("d-m-Y");
+            })
+            ->addColumn("qty_return", function ($model) {
+                return "<input type='number' class='form-control' name='qty_return' id='qty_return'  max='" . $model->total_loan - $model->total_return . "'  data-id='" . $model->id . "' value='0' min='0' />";
+            })
+            ->addColumn("action", function ($model) {
+                return "<button type='button' class='btn btn-primary' id='returnLoanBtn' data-id='" . $model->id . "'>Kembalikan</button>";
+            })
+            ->rawColumns(["qty_return", "action"])
+            ->toJson();
     }
 }
