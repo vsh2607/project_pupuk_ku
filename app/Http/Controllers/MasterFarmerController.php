@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterFarmer;
-use App\Models\MasterFarmerFertilizer;
-use App\Models\MasterFarmerPlant;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Models\MasterFarmerPlant;
 use Illuminate\Support\Facades\DB;
+use App\Imports\MasterFarmerImport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\MasterFarmerFertilizer;
 
 class MasterFarmerController extends Controller
 {
@@ -82,7 +84,6 @@ class MasterFarmerController extends Controller
                     'id_master_farmer' => $masterFarmer->id,
                     'id_master_fertilizer' => $fertilizer,
                     'quantity_owned' => (float) $request->fertilizer_qty_owned[$key],
-                    // 'quantity_needed' => (float) $request->fertilizer_qty_needed[$key]
                 ]);
             }
 
@@ -230,5 +231,14 @@ class MasterFarmerController extends Controller
     public function getFertilizerOwned(Request $request){
         $data = MasterFarmerFertilizer::where('id_master_farmer', $request->farmer_id)->where('id_master_fertilizer', $request->fertilizer_id)->select('quantity_owned')->first();
         return response()->json($data);
+    }
+
+    public function importDataFarmerForm(){
+        return view('master-farmer.import');
+    }
+
+    public function importDataFarmer(Request $request){
+        Excel::import(new MasterFarmerImport, $request->file('import_file'));
+        dd($request->all());
     }
 }

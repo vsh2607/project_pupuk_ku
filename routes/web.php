@@ -31,6 +31,9 @@ Route::group(['prefix' => '/master-data', 'middleware' => ['auth']], function ()
         Route::post('/add', [MasterFarmerController::class, 'addData']);
 
         Route::get("/get-fertilizer-qty-owned", [MasterFarmerController::class, 'getFertilizerOwned']);
+
+        Route::get("/import-data", [MasterFarmerController::class, 'importDataFarmerForm']);
+        Route::post("/import-data", [MasterFarmerController::class, 'importDataFarmer']);
     });
 
 
